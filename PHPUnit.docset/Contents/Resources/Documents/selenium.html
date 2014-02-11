@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8">
+  <title>PHPUnit Manual &#8211; Chapter 17. PHPUnit and Selenium</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/highlight.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
+  <!--[if lt IE 9]><script src="js/html5.js"></script><![endif]-->
+ </head>
+ <body>
+  
+  <div class="container">
+   <div class="row">
+    <div style='padding: 1.5em'>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="skeleton-generator.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="logging.html">Next</a></div>
+     </div>
+<div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="selenium"></a>Chapter 17. PHPUnit and Selenium</h1></div></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="selenium.selenium-rc"></a>Selenium Server</h2></div></div></div><p>
+      <a id="idp2024864" class="indexterm"></a>
+
+      <a class="ulink" href="http://seleniumhq.org/" target="_top">Selenium Server</a> is a
+      test tool that allows you to write automated user-interface tests for
+      web applications in any programming language against any HTTP website
+      using any mainstream browser. It performs automated browser tasks 
+      by driving the browser's process through the operating system.
+      Selenium tests run directly in a browser, just as real users do. These 
+      tests can be used for both <span class="emphasis"><em>acceptance testing</em></span> 
+      (by performing higher-level tests on the integrated system instead of
+      just testing each unit of the system independently) and <span class="emphasis"><em>browser 
+      compatibility testing</em></span> (by testing the web application on
+      different operating systems and browsers).
+    </p><p>
+      The only supported scenario of PHPUnit_Selenium is that of a Selenium 2.x
+      server. The server can be accessed through the classic Selenium RC Api, already present in 1.x, or with the WebDriver API (partially implemented) from PHPUnit_Selenium 1.2.
+    </p><p>
+      The reason behind this decision is that Selenium 2 is backward compatible and Selenium RC is not maintained anymore.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="selenium.installation"></a>Installation</h2></div></div></div><p>
+      First, install the Selenium Server:
+    </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem">Download a distribution archive of <a class="ulink" href="http://seleniumhq.org/download/" target="_top">Selenium Server</a>.</li><li class="listitem">Unzip the distribution archive and copy <code class="filename">selenium-server-standalone-2.9.0.jar</code> (check the version suffix) to <code class="filename">/usr/local/bin</code>, for instance.</li><li class="listitem">Start the Selenium Server server by running <strong class="userinput"><code>java -jar /usr/local/bin/selenium-server-standalone-2.9.0.jar</code></strong>.</li></ol></div><p>
+      Second, install the PHPUnit_Selenium package, necessary for natively accessing the Selenium Server from PHPUnit:
+      </p><pre class="screen"><strong class="userinput"><code>pear install phpunit/PHPUnit_Selenium</code></strong></pre><p>
+    </p><p>
+      Now we can send commands to the Selenium Server using its client/server
+      protocol.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="selenium.selenium2testcase"></a>PHPUnit_Extensions_Selenium2TestCase</h2></div></div></div><p>
+      <a id="idp2037456" class="indexterm"></a>
+
+      The <code class="literal">PHPUnit_Extensions_Selenium2TestCase</code> test case lets you use the WebDriver API (partially implemented).
+    </p><p>
+      <a class="xref" href="selenium.html#selenium.selenium2testcase.examples.WebTest.php" title="Example 17.1: Usage example for PHPUnit_Extensions_Selenium2TestCase">Example 17.1</a> shows
+      how to test the contents of the <code class="literal">&lt;title&gt;</code>
+      element of the <code class="systemitem">http://www.example.com/</code>
+      website.
+    </p><div class="example"><a id="selenium.selenium2testcase.examples.WebTest.php"></a><p class="title"><strong>Example 17.1: Usage example for PHPUnit_Extensions_Selenium2TestCase</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+class WebTest extends PHPUnit_Extensions_Selenium2TestCase
+{
+    protected function setUp()
+    {
+        $this-&gt;setBrowser('firefox');
+        $this-&gt;setBrowserUrl('http://www.example.com/');
+    }
+
+    public function testTitle()
+    {
+        $this-&gt;url('http://www.example.com/');
+        $this-&gt;assertEquals('Example WWW Page', $this-&gt;title());
+    }
+
+}
+?&gt;</pre><pre class="screen"><strong class="userinput"><code>phpunit WebTest</code></strong>
+PHPUnit 3.6.10 by Sebastian Bergmann.
+
+F
+
+Time: 28 seconds, Memory: 3.00Mb
+
+There was 1 failure:
+
+1) WebTest::testTitle
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'Example WWW Page'
++'IANA — Example domains'
+
+/home/giorgio/WebTest.php:13
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</pre></div></div><br class="example-break"></br><p>    
+    The commands of Selenium2TestCare are implemented via __call(). Please refer to <a class="ulink" href="https://github.com/sebastianbergmann/phpunit-selenium/blob/master/Tests/Selenium2TestCaseTest.php" target="_top">the end-to-end test for PHPUnit_Extensions_Selenium2TestCase</a> for a list of every supported feature.
+  </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="selenium.seleniumtestcase"></a>PHPUnit_Extensions_SeleniumTestCase</h2></div></div></div><p>
+      <a id="idp1941120" class="indexterm"></a>
+
+      The <code class="literal">PHPUnit_Extensions_SeleniumTestCase</code> test case
+      extension implements the client/server protocol to talk to Selenium Server as
+      well as specialized assertion methods for web testing.
+    </p><p>
+      <a class="xref" href="selenium.html#selenium.seleniumtestcase.examples.WebTest.php" title="Example 17.2: Usage example for PHPUnit_Extensions_SeleniumTestCase">Example 17.2</a> shows
+      how to test the contents of the <code class="literal">&lt;title&gt;</code>
+      element of the <code class="systemitem">http://www.example.com/</code>
+      website.
+    </p><div class="example"><a id="selenium.seleniumtestcase.examples.WebTest.php"></a><p class="title"><strong>Example 17.2: Usage example for PHPUnit_Extensions_SeleniumTestCase</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
+
+class WebTest extends PHPUnit_Extensions_SeleniumTestCase
+{
+    protected function setUp()
+    {
+        $this-&gt;setBrowser('*firefox');
+        $this-&gt;setBrowserUrl('http://www.example.com/');
+    }
+
+    public function testTitle()
+    {
+        $this-&gt;open('http://www.example.com/');
+        $this-&gt;assertTitle('Example WWW Page');
+    }
+}
+?&gt;</pre><pre class="screen"><strong class="userinput"><code>phpunit WebTest</code></strong>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+F
+
+Time: 9 seconds, Memory: 6.00Mb
+
+There was 1 failure:
+
+1) WebTest::testTitle
+Current URL: http://www.iana.org/domains/example/
+
+Failed asserting that 'IANA — Example domains' matches PCRE pattern "/Example WWW Page/".
+
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</pre></div></div><br class="example-break"></br><p>
+      Unlike with the <code class="literal">PHPUnit_Framework_TestCase</code> class,
+      test case classes that extend <code class="literal">PHPUnit_Extensions_SeleniumTestCase</code>
+      have to provide a <code class="literal">setUp()</code> method. This method is used
+      to configure the Selenium Server session. See
+      <a class="xref" href="selenium.html#selenium.seleniumtestcase.tables.seleniumrc-api.setup" title="Table 17.1. Selenium Server API: Setup">Table 17.1</a>
+      for the list of methods that are available for this.
+    </p><div class="table"><a id="selenium.seleniumtestcase.tables.seleniumrc-api.setup"></a><p class="title"><strong>Table 17.1. Selenium Server API: Setup</strong></p><div class="table-contents"><table summary="Selenium Server API: Setup" border="1"><colgroup><col></col><col></col></colgroup><thead><tr><th align="left">Method</th><th align="left">Meaning</th></tr></thead><tbody><tr><td align="left"><code class="literal">void setBrowser(string $browser)</code></td><td align="left">Set the browser to be used by the Selenium Server server.</td></tr><tr><td align="left"><code class="literal">void setBrowserUrl(string $browserUrl)</code></td><td align="left">Set the base URL for the tests.</td></tr><tr><td align="left"><code class="literal">void setHost(string $host)</code></td><td align="left">Set the hostname for the connection to the Selenium Server server.</td></tr><tr><td align="left"><code class="literal">void setPort(int $port)</code></td><td align="left">Set the port for the connection to the Selenium Server server.</td></tr><tr><td align="left"><code class="literal">void setTimeout(int $timeout)</code></td><td align="left">Set the timeout for the connection to the Selenium Server server.</td></tr><tr><td align="left"><code class="literal">void setSleep(int $seconds)</code></td><td align="left">Set the number of seconds the Selenium Server client should sleep between sending action commands to the Selenium Server server.</td></tr></tbody></table></div></div><br class="table-break"></br><p>
+      PHPUnit can optionally capture a screenshot when a Selenium test fails. To
+      enable this, set <code class="literal">$captureScreenshotOnFailure</code>,
+      <code class="literal">$screenshotPath</code>, and <code class="literal">$screenshotUrl</code>
+      in your test case class as shown in
+      <a class="xref" href="selenium.html#selenium.seleniumtestcase.examples.WebTest2.php" title="Example 17.3: Capturing a screenshot when a test fails">Example 17.3</a>.
+    </p><div class="example"><a id="selenium.seleniumtestcase.examples.WebTest2.php"></a><p class="title"><strong>Example 17.3: Capturing a screenshot when a test fails</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
+
+class WebTest extends PHPUnit_Extensions_SeleniumTestCase
+{
+    protected $captureScreenshotOnFailure = TRUE;
+    protected $screenshotPath = '/var/www/localhost/htdocs/screenshots';
+    protected $screenshotUrl = 'http://localhost/screenshots';
+
+    protected function setUp()
+    {
+        $this-&gt;setBrowser('*firefox');
+        $this-&gt;setBrowserUrl('http://www.example.com/');
+    }
+
+    public function testTitle()
+    {
+        $this-&gt;open('http://www.example.com/');
+        $this-&gt;assertTitle('Example WWW Page');
+    }
+}
+?&gt;</pre><pre class="screen"><strong class="userinput"><code>phpunit WebTest</code></strong>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+F
+
+Time: 7 seconds, Memory: 6.00Mb
+
+There was 1 failure:
+
+1) WebTest::testTitle
+Current URL: http://www.iana.org/domains/example/
+Screenshot: http://localhost/screenshots/334b080f2364b5f11568ee1c7f6742c9.png
+
+Failed asserting that 'IANA — Example domains' matches PCRE pattern "/Example WWW Page/".
+
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</pre></div></div><br class="example-break"></br><p>
+      You can run each test using a set of browsers: Instead of using
+      <code class="literal">setBrowser()</code> to set up one browser you declare a
+      <code class="literal">public static</code> array named <code class="literal">$browsers</code>
+      in your test case class. Each item in this array describes one browser
+      configuration. Each of these browsers can be hosted by different
+      Selenium Server servers.
+      <a class="xref" href="selenium.html#selenium.seleniumtestcase.examples.WebTest3.php" title="Example 17.4: Setting up multiple browser configurations">Example 17.4</a> shows
+      an example.
+    </p><div class="example"><a id="selenium.seleniumtestcase.examples.WebTest3.php"></a><p class="title"><strong>Example 17.4: Setting up multiple browser configurations</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
+
+class WebTest extends PHPUnit_Extensions_SeleniumTestCase
+{
+    public static $browsers = array(
+      array(
+        'name'    =&gt; 'Firefox on Linux',
+        'browser' =&gt; '*firefox',
+        'host'    =&gt; 'my.linux.box',
+        'port'    =&gt; 4444,
+        'timeout' =&gt; 30000,
+      ),
+      array(
+        'name'    =&gt; 'Safari on MacOS X',
+        'browser' =&gt; '*safari',
+        'host'    =&gt; 'my.macosx.box',
+        'port'    =&gt; 4444,
+        'timeout' =&gt; 30000,
+      ),
+      array(
+        'name'    =&gt; 'Safari on Windows XP',
+        'browser' =&gt; '*custom C:\Program Files\Safari\Safari.exe -url',
+        'host'    =&gt; 'my.windowsxp.box',
+        'port'    =&gt; 4444,
+        'timeout' =&gt; 30000,
+      ),
+      array(
+        'name'    =&gt; 'Internet Explorer on Windows XP',
+        'browser' =&gt; '*iexplore',
+        'host'    =&gt; 'my.windowsxp.box',
+        'port'    =&gt; 4444,
+        'timeout' =&gt; 30000,
+      )
+    );
+
+    protected function setUp()
+    {
+        $this-&gt;setBrowserUrl('http://www.example.com/');
+    }
+
+    public function testTitle()
+    {
+        $this-&gt;open('http://www.example.com/');
+        $this-&gt;assertTitle('Example Web Page');
+    }
+}
+?&gt;</pre></div></div><br class="example-break"></br><p>
+      <code class="literal">PHPUnit_Extensions_SeleniumTestCase</code> can collect code
+      coverage information for tests run through Selenium:
+    </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem">Copy <code class="filename">PHPUnit/Extensions/SeleniumCommon/phpunit_coverage.php</code> into your webserver's document root directory.</li><li class="listitem">In your webserver's <code class="filename">php.ini</code> configuration file, configure <code class="filename">PHPUnit/Extensions/SeleniumCommon/prepend.php</code> and <code class="filename">PHPUnit/Extensions/SeleniumCommon/append.php</code> as the <code class="literal">auto_prepend_file</code> and <code class="literal">auto_append_file</code>, respectively.</li><li class="listitem">In your test case class that extends <code class="literal">PHPUnit_Extensions_SeleniumTestCase</code>, use <pre class="programlisting">protected $coverageScriptUrl = 'http://host/phpunit_coverage.php';</pre> to configure the URL for the <code class="filename">phpunit_coverage.php</code> script.</li></ol></div><p>
+      <a class="xref" href="selenium.html#selenium.seleniumtestcase.tables.assertions" title="Table 17.2. Assertions">Table 17.2</a> lists the
+      various assertion methods that <code class="literal">PHPUnit_Extensions_SeleniumTestCase</code>
+      provides.
+    </p><div class="table"><a id="selenium.seleniumtestcase.tables.assertions"></a><p class="title"><strong>Table 17.2. Assertions</strong></p><div class="table-contents"><table summary="Assertions" border="1"><colgroup><col></col><col></col></colgroup><thead><tr><th align="left">Assertion</th><th align="left">Meaning</th></tr></thead><tbody><tr><td align="left"><code class="literal">void assertElementValueEquals(string $locator, string $text)</code></td><td align="left">Reports an error if the value of the element identified by <code class="literal">$locator</code> is not equal to the given <code class="literal">$text</code>.</td></tr><tr><td align="left"><code class="literal">void assertElementValueNotEquals(string $locator, string $text)</code></td><td align="left">Reports an error if the value of the element identified by <code class="literal">$locator</code> is equal to the given <code class="literal">$text</code>.</td></tr><tr><td align="left"><code class="literal">void assertElementValueContains(string $locator, string $text)</code></td><td align="left">Reports an error if the value of the element identified by <code class="literal">$locator</code> does not contain the given <code class="literal">$text</code>.</td></tr><tr><td align="left"><code class="literal">void assertElementValueNotContains(string $locator, string $text)</code></td><td align="left">Reports an error if the value of the element identified by <code class="literal">$locator</code> contains the given <code class="literal">$text</code>.</td></tr><tr><td align="left"><code class="literal">void assertElementContainsText(string $locator, string $text)</code></td><td align="left">Reports an error if the element identified by <code class="literal">$locator</code> does not contain the given <code class="literal">$text</code>.</td></tr><tr><td align="left"><code class="literal">void assertElementNotContainsText(string $locator, string $text)</code></td><td align="left">Reports an error if the element identified by <code class="literal">$locator</code> contains the given <code class="literal">$text</code>.</td></tr><tr><td align="left"><code class="literal">void assertSelectHasOption(string $selectLocator, string $option)</code></td><td align="left">Reports an error if the given option is not available.</td></tr><tr><td align="left"><code class="literal">void assertSelectNotHasOption(string $selectLocator, string $option)</code></td><td align="left">Reports an error if the given option is available.</td></tr><tr><td align="left"><code class="literal">void assertSelected($selectLocator, $option)</code></td><td align="left">Reports an error if the given label is not selected.</td></tr><tr><td align="left"><code class="literal">void assertNotSelected($selectLocator, $option)</code></td><td align="left">Reports an error if the given label is selected.</td></tr><tr><td align="left"><code class="literal">void assertIsSelected(string $selectLocator, string $value)</code></td><td align="left">Reports an error if the given value is not selected.</td></tr><tr><td align="left"><code class="literal">void assertIsNotSelected(string $selectLocator, string $value)</code></td><td align="left">Reports an error if the given value is selected.</td></tr></tbody></table></div></div><br class="table-break"></br><p>
+      <a class="xref" href="selenium.html#selenium.seleniumtestcase.tables.template-methods" title="Table 17.3. Template Methods">Table 17.3</a> shows
+      the template method of <code class="literal">PHPUnit_Extensions_SeleniumTestCase</code>:
+    </p><div class="table"><a id="selenium.seleniumtestcase.tables.template-methods"></a><p class="title"><strong>Table 17.3. Template Methods</strong></p><div class="table-contents"><table summary="Template Methods" border="1"><colgroup><col></col><col></col></colgroup><thead><tr><th align="left">Method</th><th align="left">Meaning</th></tr></thead><tbody><tr><td align="left"><code class="literal">void defaultAssertions()</code></td><td align="left">Override to perform assertions that are shared by all tests of a test case. This method is called after each command that is sent to the Selenium Server server.</td></tr></tbody></table></div></div><br class="table-break"></br><p>
+      Please refer to the <a class="ulink" href="http://release.seleniumhq.org/selenium-core/1.0.1/reference.html" target="_top">documentation of Selenium commands</a>
+      for a reference of the commands available and how they are used.
+    </p><p>
+    The commands of Selenium 1 are implemented dynamically via __call. Refer also to <a class="ulink" href="https://github.com/sebastianbergmann/phpunit-selenium/blob/master/PHPUnit/Extensions/SeleniumTestCase/Driver.php#L410" target="_top">the API docs for PHPUnit_Extensions_SeleniumTestCase_Driver::__call()</a> for a list of all the supported methods on the PHP side, along with arguments and return type where available.
+    </p><p>
+      Using the <code class="literal">runSelenese($filename)</code> method, you can also
+      run a Selenium test from its Selenese/HTML specification. Furthermore,
+      using the static attribute <code class="literal">$seleneseDirectory</code>, you can
+      automatically create test objects from a directory that contains
+      Selenese/HTML files. The specified directory is recursively searched for
+      <code class="literal">.htm</code> files that are expected to contain Selenese/HTML.
+      <a class="xref" href="selenium.html#selenium.seleniumtestcase.examples.WebTest4.php" title="Example 17.5: Use a directory of Selenese/HTML files as tests">Example 17.5</a> shows an
+      example.
+    </p><div class="example"><a id="selenium.seleniumtestcase.examples.WebTest4.php"></a><p class="title"><strong>Example 17.5: Use a directory of Selenese/HTML files as tests</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
+
+class SeleneseTests extends PHPUnit_Extensions_SeleniumTestCase
+{
+    public static $seleneseDirectory = '/path/to/files';
+}
+?&gt;</pre></div></div><br class="example-break"></br><p>
+    From Selenium 1.1.1, an experimental feature is included allowing the user to share the session between tests. The only supported case is to share the session between all tests when a single browser is used.
+    Call <code class="literal">PHPUnit_Extensions_SeleniumTestCase::shareSession(true)</code> in your bootstrap file to enable session sharing.
+    The session will be reset in the case of not successul tests (failed or incomplete); it is up to the user to avoid interactions between tests by resetting cookies or logging out from the application under test (with a tearDown() method).
+    </p></div></div>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="skeleton-generator.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="logging.html">Next</a></div>
+     </div>
+<div class="row"><div class="col-md-2"></div><div class="col-md-8"><div class="alert alert-info" style="text-align: center;">Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!</div></div><div class="col-md-2"></div></div>
+    </div>
+   </div>
+   <hr/>
+   <footer>
+    <p><a href="appendixes.copyright.html">Copyright</a> &copy; 2005-2014 <a href="http://sebastian-bergmann.de/">Sebastian Bergmann</a>.</p>
+   </footer>
+  </div>
+  <script src="js/jquery.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/highlight.pack.js"></script>
+  <script type="text/javascript">
+  $(document).ready(function() { $('pre.programlisting').each(function(i, e) {hljs.highlightBlock(e)}); });
+
+  var _paq = _paq || [];
+  _paq.push(["trackPageView"]);
+  _paq.push(["enableLinkTracking"]);
+
+  (function() {
+    var u=(("https:" == document.location.protocol) ? "https" : "http") + "://piwik.sebastian-bergmann.de/";
+    _paq.push(["setTrackerUrl", u+"piwik.php"]);
+    _paq.push(["setSiteId", "2"]);
+    var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
+    g.defer=true; g.async=true; g.src=u+"piwik.js"; s.parentNode.insertBefore(g,s);
+  })();
+  </script>
+ </body>
+</html>

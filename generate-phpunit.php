@@ -5,6 +5,7 @@ exec("mkdir -p PHPUnit.docset/Contents/Resources/");
 exec("wget -rkl1 http://phpunit.de/manual/current/en/index.html");
 exec("mv " . __DIR__ . "/phpunit.de/manual/current/en " . __DIR__ . "/PHPUnit.docset/Contents/Resources/Documents/");
 exec("rm -r " . __DIR__ . "/phpunit.de/");
+
 file_put_contents(__DIR__ . "/PHPUnit.docset/Contents/Info.plist", <<<ENDE
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -24,6 +25,7 @@ file_put_contents(__DIR__ . "/PHPUnit.docset/Contents/Info.plist", <<<ENDE
 </plist>
 ENDE
 );
+copy(__DIR__ . "/icon.png", __DIR__ . "/PHPUnit.docset/icon.png");
 
 $dom = new DomDocument;
 @$dom->loadHTMLFile(__DIR__ . "/PHPUnit.docset/Contents/Resources/Documents/index.html");
@@ -56,7 +58,7 @@ foreach ($dom->getElementsByTagName("a") as $a) {
 		$edited[$file] = true;
 	}
 
-	$name = trim(preg_replace("#^[A-Z0-9–]+\.#", "", $a->nodeValue));
+	$name = trim(preg_replace("#\s+#", " ", preg_replace("#^[A-Z0-9–]+\.#", "", $a->nodeValue)));
 	if (empty($name)) continue;
 
 	$class = "Guide";

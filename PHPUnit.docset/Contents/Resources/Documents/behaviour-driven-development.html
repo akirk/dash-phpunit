@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8">
+  <title>PHPUnit Manual &#8211; Chapter 13. Behaviour-Driven Development</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/highlight.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
+  <!--[if lt IE 9]><script src="js/html5.js"></script><![endif]-->
+ </head>
+ <body>
+  
+  <div class="container">
+   <div class="row">
+    <div style='padding: 1.5em'>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="test-driven-development.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="code-coverage-analysis.html">Next</a></div>
+     </div>
+<div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="behaviour-driven-development"></a>Chapter 13. Behaviour-Driven Development</h1></div></div></div><p>
+    <a id="idp1699344" class="indexterm"></a>
+    <a id="idp435296" class="indexterm"></a>
+
+    In <a class="xref" href="appendixes.bibliography.html#Astels2006" title="A New Look at Test-Driven Development">[<abbr class="abbrev">Astels2006</abbr>]</a>, Dave Astels makes the following points:
+  </p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+        <a class="ulink" href="http://en.wikipedia.org/wiki/Extreme_Programming" target="_top">Extreme Programming</a>
+        originally had the rule to test everything that could possibly break.
+      </p></li><li class="listitem"><p>
+        Now, however, the practice of testing in Extreme Programming has evolved
+        into <a class="ulink" href="http://en.wikipedia.org/wiki/Test-driven_development" target="_top">Test-Driven Development</a>
+        (see <a class="xref" href="test-driven-development.html" title="Chapter 12. Test-Driven Development">Chapter 12</a>).
+      </p></li><li class="listitem"><p>
+        But the tools still force developers to think in terms of tests and
+        assertions instead of specifications.
+      </p></li></ul></div><div class="blockquote"><table border="0" class="blockquote" style="width: 100%; cellspacing: 0; cellpadding: 0;" summary="Block quote"><tr><td width="10%" valign="top"> </td><td width="80%" valign="top"><div class="blockquote-title"><p><strong>So if it's not about testing, what's it about?</strong></p></div><p>
+      It's about figuring out what you are trying to do before you run off
+      half-cocked to try to do it. You write a specification that nails down a
+      small aspect of behaviour in a concise, unambiguous, and executable form.
+      It's that simple. Does that mean you write tests? No. It means you write
+      specifications of what your code will have to do. It means you specify the
+      behaviour of your code ahead of time. But not far ahead of time. In fact,
+      just before you write the code is best because that's when you have as
+      much information at hand as you will up to that point. Like well done TDD,
+      you work in tiny increments... specifying one small aspect of behaviour at
+      a time, then implementing it.
+    </p><p>
+      When you realize that it's all about specifying behaviour and not writing
+      tests, your point of view shifts. Suddenly the idea of having a Test class
+      for each of your production classes is ridiculously limiting. And the
+      thought of testing each of your methods with its own test method (in a 1-1
+      relationship) will be laughable.
+    </p></td><td width="10%" valign="top"> </td></tr><tr><td width="10%" valign="top"> </td><td colspan="2" align="right" valign="top">--<span class="attribution">Dave Astels</span></td></tr></table></div><p>
+    <a id="idp756944" class="indexterm"></a>
+    <a id="idp757488" class="indexterm"></a>
+
+    The focus of <a class="ulink" href="http://en.wikipedia.org/wiki/Behavior_driven_development" target="_top">Behaviour-Driven Development</a>
+    is "the language and interactions used in the process of software development.
+    Behavior-driven developers use their native language in combination with the
+    ubiquitous language of <a class="ulink" href="http://en.wikipedia.org/wiki/Domain_driven_design" target="_top">Domain-Driven Design</a>
+    to describe the purpose and benefit of their code. This allows the developers
+    to focus on why the code should be created, rather than the technical details,
+    and minimizes translation between the technical language in which the code
+    is written and the domain language spoken by the" domain experts.
+  </p><div class="alert alert-error"><h3 class="title">Caution</h3><p>
+      You want to use <a class="ulink" href="http://behat.org/" target="_top">Behat</a> for
+      Behaviour-Driven Development instead of the
+      <code class="literal">PHPUnit_Extensions_Story_TestCase</code> extension to PHPUnit
+      that is discussed in the remainder of this chapter.
+    </p></div><p>
+    <a id="idp721536" class="indexterm"></a>
+
+    The <code class="literal">PHPUnit_Extensions_Story_TestCase</code> class adds a story
+    framework that faciliates the definition of a
+    <a class="ulink" href="http://en.wikipedia.org/wiki/Domain-specific_programming_language" target="_top">Domain-Specific Language</a>
+    for Behaviour-Driven Development. It can be installed like this:
+  </p><pre class="screen"><strong class="userinput"><code>pear install phpunit/PHPUnit_Story</code></strong></pre><p>
+    Inside a <span class="emphasis"><em>scenario</em></span>, <code class="literal">given()</code>,
+    <code class="literal">when()</code>, and <code class="literal">then()</code> each represent a
+    <span class="emphasis"><em>step</em></span>. <code class="literal">and()</code> is the same kind as the
+    previous step. The following methods are declared <code class="literal">abstract</code>
+    in <code class="literal">PHPUnit_Extensions_Story_TestCase</code> and need to be
+    implemented:
+  </p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p><code class="literal">runGiven(&amp;$world, $action, $arguments)</code></p><p>...</p></li><li class="listitem"><p><code class="literal">runWhen(&amp;$world, $action, $arguments)</code></p><p>...</p></li><li class="listitem"><p><code class="literal">runThen(&amp;$world, $action, $arguments)</code></p><p>...</p></li></ul></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="behaviour-driven-development.bowlinggame-example"></a>BowlingGame Example</h2></div></div></div><p>
+      In this section, we will look at the example of a class that calculates
+      the score for a game of bowling. The rules for this are as follows:
+    </p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>The game consists of 10 frames.</p></li><li class="listitem"><p>In each frame the player has two opportunities to knock down 10 pins.</p></li><li class="listitem"><p>The score for a frame is the total number of pins knocked down, plus bonuses for strikes and spares.</p></li><li class="listitem"><p>A spare is when the player knocks down all 10 pins in two tries.</p><p>The bonus for that frame is the number of pins knocked down by the next roll.</p></li><li class="listitem"><p>A strike is when the player knocks down all 10 pins on the first try.</p><p>The bonus for that frame is the value of the next two balls rolled.</p></li></ul></div><p>
+      <a class="xref" href="behaviour-driven-development.html#behaviour-driven-development.bowlinggame-example.examples.BowlingGameSpec.php" title="Example 13.1: Specification for the BowlingGame class">Example 13.1</a>
+      shows how the above rules can be written down as specification scenarios
+      using <code class="literal">PHPUnit_Extensions_Story_TestCase</code>.
+    </p><div class="example"><a id="behaviour-driven-development.bowlinggame-example.examples.BowlingGameSpec.php"></a><p class="title"><strong>Example 13.1: Specification for the BowlingGame class</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+require_once 'PHPUnit/Extensions/Story/TestCase.php';
+require_once 'BowlingGame.php';
+
+class BowlingGameSpec extends PHPUnit_Extensions_Story_TestCase
+{
+    /**
+     * @scenario
+     */
+    public function scoreForGutterGameIs0()
+    {
+        $this-&gt;given('New game')
+             -&gt;then('Score should be', 0);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForAllOnesIs20()
+    {
+        $this-&gt;given('New game')
+             -&gt;when('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;and('Player rolls', 1)
+             -&gt;then('Score should be', 20);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForOneSpareAnd3Is16()
+    {
+        $this-&gt;given('New game')
+             -&gt;when('Player rolls', 5)
+             -&gt;and('Player rolls', 5)
+             -&gt;and('Player rolls', 3)
+             -&gt;then('Score should be', 16);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForOneStrikeAnd3And4Is24()
+    {
+        $this-&gt;given('New game')
+             -&gt;when('Player rolls', 10)
+             -&gt;and('Player rolls', 3)
+             -&gt;and('Player rolls', 4)
+             -&gt;then('Score should be', 24);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForPerfectGameIs300()
+    {
+        $this-&gt;given('New game')
+             -&gt;when('Player rolls', 10)
+             -&gt;and('Player rolls', 10)
+             -&gt;and('Player rolls', 10)
+             -&gt;and('Player rolls', 10)
+             -&gt;and('Player rolls', 10)
+             -&gt;and('Player rolls', 10)
+             -&gt;and('Player rolls', 10)
+             -&gt;and('Player rolls', 10)
+             -&gt;and('Player rolls', 10)
+             -&gt;and('Player rolls', 10)
+             -&gt;and('Player rolls', 10)
+             -&gt;and('Player rolls', 10)
+             -&gt;then('Score should be', 300);
+    }
+
+    public function runGiven(&amp;$world, $action, $arguments)
+    {
+        switch($action) {
+            case 'New game': {
+                $world['game']  = new BowlingGame;
+                $world['rolls'] = 0;
+            }
+            break;
+
+            default: {
+                return $this-&gt;notImplemented($action);
+            }
+        }
+    }
+
+    public function runWhen(&amp;$world, $action, $arguments)
+    {
+        switch($action) {
+            case 'Player rolls': {
+                $world['game']-&gt;roll($arguments[0]);
+                $world['rolls']++;
+            }
+            break;
+
+            default: {
+                return $this-&gt;notImplemented($action);
+            }
+        }
+    }
+
+    public function runThen(&amp;$world, $action, $arguments)
+    {
+        switch($action) {
+            case 'Score should be': {
+                for ($i = $world['rolls']; $i &lt; 20; $i++) {
+                    $world['game']-&gt;roll(0);
+                }
+
+                $this-&gt;assertEquals($arguments[0], $world['game']-&gt;score());
+            }
+            break;
+
+            default: {
+                return $this-&gt;notImplemented($action);
+            }
+        }
+    }
+}
+?&gt;</pre><pre class="screen"><strong class="userinput"><code>phpunit --printer PHPUnit_Extensions_Story_ResultPrinter_Text BowlingGameSpec</code></strong>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+BowlingGameSpec
+ [x] Score for gutter game is 0
+
+   Given New game 
+    Then Score should be 0
+
+ [x] Score for all ones is 20
+
+   Given New game 
+    When Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+    Then Score should be 20
+
+ [x] Score for one spare and 3 is 16
+
+   Given New game 
+    When Player rolls 5
+     and Player rolls 5
+     and Player rolls 3
+    Then Score should be 16
+
+ [x] Score for one strike and 3 and 4 is 24
+
+   Given New game 
+    When Player rolls 10
+     and Player rolls 3
+     and Player rolls 4
+    Then Score should be 24
+
+ [x] Score for perfect game is 300
+
+   Given New game 
+    When Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+    Then Score should be 300
+
+Scenarios: 5, Failed: 0, Skipped: 0, Incomplete: 0.</pre></div></div><br class="example-break"></br></div></div>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="test-driven-development.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="code-coverage-analysis.html">Next</a></div>
+     </div>
+<div class="row"><div class="col-md-2"></div><div class="col-md-8"><div class="alert alert-info" style="text-align: center;">Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!</div></div><div class="col-md-2"></div></div>
+    </div>
+   </div>
+   <hr/>
+   <footer>
+    <p><a href="appendixes.copyright.html">Copyright</a> &copy; 2005-2014 <a href="http://sebastian-bergmann.de/">Sebastian Bergmann</a>.</p>
+   </footer>
+  </div>
+  <script src="js/jquery.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/highlight.pack.js"></script>
+  <script type="text/javascript">
+  $(document).ready(function() { $('pre.programlisting').each(function(i, e) {hljs.highlightBlock(e)}); });
+
+  var _paq = _paq || [];
+  _paq.push(["trackPageView"]);
+  _paq.push(["enableLinkTracking"]);
+
+  (function() {
+    var u=(("https:" == document.location.protocol) ? "https" : "http") + "://piwik.sebastian-bergmann.de/";
+    _paq.push(["setTrackerUrl", u+"piwik.php"]);
+    _paq.push(["setSiteId", "2"]);
+    var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
+    g.defer=true; g.async=true; g.src=u+"piwik.js"; s.parentNode.insertBefore(g,s);
+  })();
+  </script>
+ </body>
+</html>

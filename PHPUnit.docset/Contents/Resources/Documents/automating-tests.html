@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8">
+  <title>PHPUnit Manual &#8211; Chapter 1. Automating Tests</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/highlight.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
+  <!--[if lt IE 9]><script src="js/html5.js"></script><![endif]-->
+ </head>
+ <body>
+  
+  <div class="container">
+   <div class="row">
+    <div style='padding: 1.5em'>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="index.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="goals.html">Next</a></div>
+     </div>
+<div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="automating-tests"></a>Chapter 1. Automating Tests</h1></div></div></div><p>
+    Even good programmers make mistakes. The difference between a good
+    programmer and a bad programmer is that the good programmer uses tests
+    to detect mistakes as soon as possible. The sooner you test for a
+    mistake the greater your chance of finding it and the less it will cost
+    to find and fix. This explains why leaving testing until just before
+    releasing software is so problematic. Most errors do not get caught at
+    all, and the cost of fixing the ones you do catch is so high that you
+    have to perform triage with the errors because you just cannot afford
+    to fix them all.
+  </p><p>
+    <a id="idp61056" class="indexterm"></a>
+
+    Testing with PHPUnit is not a totally different activity from what you
+    should already be doing. It is just a different way of doing it. The
+    difference is between <span class="emphasis"><em>testing</em></span>, that is, checking
+    that your program behaves as expected, and <span class="emphasis"><em>performing a battery
+    of tests</em></span>, runnable code-fragments that automatically test the
+    correctness of parts (units) of the software. These runnable
+    code-fragments are called unit tests.
+  </p><p>
+    In this chapter we will go from simple <code class="literal">print</code>-based
+    testing code to a fully automated test. Imagine that we have been asked
+    to test PHP's built-in <code class="literal">array</code>. One bit of functionality
+    to test is the function <code class="literal">count()</code>. For a newly created
+    array we expect the <code class="literal">count()</code> function to return
+    <code class="literal">0</code>. After we add an element, <code class="literal">count()</code>
+    should return <code class="literal">1</code>.
+    <a class="xref" href="automating-tests.html#automating-tests.examples.array-test.php" title="Example 1.1: Testing array operations">Example 1.1</a> shows what
+    we want to test.
+  </p><div class="example"><a id="automating-tests.examples.array-test.php"></a><p class="title"><strong>Example 1.1: Testing array operations</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+$fixture = array();
+// $fixture is expected to be empty.
+
+$fixture[] = 'element';
+// $fixture is expected to contain one element.
+?&gt;</pre></div></div><br class="example-break"></br><p>
+    A really simple way to check whether we are getting the results we
+    expect is to print the result of <code class="literal">count()</code> before
+    and after adding the element (see
+    <a class="xref" href="automating-tests.html#automating-tests.examples.array-test2.php" title="Example 1.2: Using print to test array operations">Example 1.2</a>).
+    If we get <code class="literal">0</code> and then <code class="literal">1</code>,
+    <code class="literal">array</code> and <code class="literal">count()</code> behave as
+    expected.
+  </p><div class="example"><a id="automating-tests.examples.array-test2.php"></a><p class="title"><strong>Example 1.2: Using print to test array operations</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+$fixture = array();
+print count($fixture) . "\n";
+
+$fixture[] = 'element';
+print count($fixture) . "\n";
+?&gt;</pre><pre class="screen">0
+1</pre></div></div><br class="example-break"></br><p>
+    Now, we would like to move from tests that require manual interpretation
+    to tests that can run automatically. In
+    <a class="xref" href="automating-tests.html#automating-tests.examples.array-test3.php" title="Example 1.3: Comparing expected and actual values to test array operations">Example 1.3</a>, we write
+    the comparison of the expected and actual values into the test code and
+    print <code class="literal">ok</code> if the values are equal. If we ever see a
+    <code class="literal">not ok</code> message, we know something is wrong.
+  </p><div class="example"><a id="automating-tests.examples.array-test3.php"></a><p class="title"><strong>Example 1.3: Comparing expected and actual values to test array operations</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+$fixture = array();
+print count($fixture) == 0 ? "ok\n" : "not ok\n";
+
+$fixture[] = 'element';
+print count($fixture) == 1 ? "ok\n" : "not ok\n";
+?&gt;</pre><pre class="screen">ok
+ok</pre></div></div><br class="example-break"></br><p>
+    <a id="idp22240" class="indexterm"></a>
+
+    We now factor out the comparison of expected and actual values into a
+    function that raises an Exception when there is a discrepancy
+    (<a class="xref" href="automating-tests.html#automating-tests.examples.array-test4.php" title="Example 1.4: Using an assertion function to test array operations">Example 1.4</a>). This
+    gives us two benefits: the writing of tests becomes easier and we only
+    get output when something is wrong.
+  </p><div class="example"><a id="automating-tests.examples.array-test4.php"></a><p class="title"><strong>Example 1.4: Using an assertion function to test array operations</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+ini_set('error_log', '');
+ini_set('display_errors', 'Off');
+
+$fixture = array();
+assertTrue(count($fixture) == 0);
+
+$fixture[] = 'element';
+assertTrue(count($fixture) == 1);
+
+function assertTrue($condition)
+{
+    if (!$condition) {
+        throw new Exception('Assertion failed.');
+    }
+}
+?&gt;</pre></div></div><br class="example-break"></br><p>
+    <a id="idp25872" class="indexterm"></a>
+
+    The test is now completely automated. Instead of just
+    <span class="emphasis"><em>testing</em></span> as we did with our first version,
+    with this version we have an <span class="emphasis"><em>automated test</em></span>.
+  </p><p>
+    The goal of using automated tests is to make fewer mistakes. While your
+    code will still not be perfect, even with excellent tests, you will
+    likely see a dramatic reduction in defects once you start automating
+    tests. Automated tests give you justified confidence in your code. You
+    can use this confidence to take more daring leaps in design
+    (Refactoring), get along with your teammates better (Cross-Team Tests),
+    improve relations with your customers, and go home every night with
+    proof that the system is better now than it was this morning because of
+    your efforts.
+  </p></div>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="index.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="goals.html">Next</a></div>
+     </div>
+<div class="row"><div class="col-md-2"></div><div class="col-md-8"><div class="alert alert-info" style="text-align: center;">Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!</div></div><div class="col-md-2"></div></div>
+    </div>
+   </div>
+   <hr/>
+   <footer>
+    <p><a href="appendixes.copyright.html">Copyright</a> &copy; 2005-2014 <a href="http://sebastian-bergmann.de/">Sebastian Bergmann</a>.</p>
+   </footer>
+  </div>
+  <script src="js/jquery.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/highlight.pack.js"></script>
+  <script type="text/javascript">
+  $(document).ready(function() { $('pre.programlisting').each(function(i, e) {hljs.highlightBlock(e)}); });
+
+  var _paq = _paq || [];
+  _paq.push(["trackPageView"]);
+  _paq.push(["enableLinkTracking"]);
+
+  (function() {
+    var u=(("https:" == document.location.protocol) ? "https" : "http") + "://piwik.sebastian-bergmann.de/";
+    _paq.push(["setTrackerUrl", u+"piwik.php"]);
+    _paq.push(["setSiteId", "2"]);
+    var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
+    g.defer=true; g.async=true; g.src=u+"piwik.js"; s.parentNode.insertBefore(g,s);
+  })();
+  </script>
+ </body>
+</html>

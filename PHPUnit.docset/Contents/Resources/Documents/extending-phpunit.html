@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8">
+  <title>PHPUnit Manual &#8211; Chapter 19. Extending PHPUnit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/highlight.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
+  <!--[if lt IE 9]><script src="js/html5.js"></script><![endif]-->
+ </head>
+ <body>
+  
+  <div class="container">
+   <div class="row">
+    <div style='padding: 1.5em'>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="logging.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="appendixes.assertions.html">Next</a></div>
+     </div>
+<div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="extending-phpunit"></a>Chapter 19. Extending PHPUnit</h1></div></div></div><p>
+    PHPUnit can be extended in various ways to make the writing of tests
+    easier and customize the feedback you get from running tests. Here are
+    common starting points to extend PHPUnit.
+  </p><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="extending-phpunit.PHPUnit_Framework_TestCase"></a>Subclass PHPUnit_Framework_TestCase</h2></div></div></div><p>
+      <a id="idp2018688" class="indexterm"></a>
+
+      Write custom assertions and utility methods in an abstract subclass of
+      <code class="literal">PHPUnit_Framework_TestCase</code> and derive your test case
+      classes from that class. This is one of the easiest ways to extend
+      PHPUnit.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="extending-phpunit.custom-assertions"></a>Write custom assertions</h2></div></div></div><p>
+      When writing custom assertions it is the best practice to follow how
+      PHPUnit's own assertions are implemented. As you can see in
+      <a class="xref" href="extending-phpunit.html#extending-phpunit.examples.Assert.php" title="Example 19.1: The assertTrue() and isTrue() methods of the PHPUnit_Framework_Assert class">Example 19.1</a>, the
+      <code class="literal">assertTrue()</code> method is just a wrapper around the
+      <code class="literal">isTrue()</code> and <code class="literal">assertThat()</code> methods:
+      <code class="literal">isTrue()</code> creates a matcher object that is passed on to
+      <code class="literal">assertThat()</code> for evaluation.
+    </p><div class="example"><a id="extending-phpunit.examples.Assert.php"></a><p class="title"><strong>Example 19.1: The assertTrue() and isTrue() methods of the PHPUnit_Framework_Assert class</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+abstract class PHPUnit_Framework_Assert
+{
+    // ...
+
+    /**
+     * Asserts that a condition is true.
+     *
+     * @param  boolean $condition
+     * @param  string  $message
+     * @throws PHPUnit_Framework_AssertionFailedError
+     */
+    public static function assertTrue($condition, $message = '')
+    {
+        self::assertThat($condition, self::isTrue(), $message);
+    }
+
+    // ...
+
+    /**
+     * Returns a PHPUnit_Framework_Constraint_IsTrue matcher object.
+     *
+     * @return PHPUnit_Framework_Constraint_IsTrue
+     * @since  Method available since Release 3.3.0
+     */
+    public static function isTrue()
+    {
+        return new PHPUnit_Framework_Constraint_IsTrue;
+    }
+
+    // ...
+}?&gt;</pre></div></div><br class="example-break"></br><p>
+      <a class="xref" href="extending-phpunit.html#extending-phpunit.examples.IsTrue.php" title="Example 19.2: The PHPUnit_Framework_Constraint_IsTrue class">Example 19.2</a> shows how
+      <code class="literal">PHPUnit_Framework_Constraint_IsTrue</code> extends the
+      abstract base class for matcher objects (or constraints),
+      <code class="literal">PHPUnit_Framework_Constraint</code>.
+    </p><div class="example"><a id="extending-phpunit.examples.IsTrue.php"></a><p class="title"><strong>Example 19.2: The PHPUnit_Framework_Constraint_IsTrue class</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+class PHPUnit_Framework_Constraint_IsTrue extends PHPUnit_Framework_Constraint
+{
+    /**
+     * Evaluates the constraint for parameter $other. Returns TRUE if the
+     * constraint is met, FALSE otherwise.
+     *
+     * @param mixed $other Value or object to evaluate.
+     * @return bool
+     */
+    public function matches($other)
+    {
+        return $other === TRUE;
+    }
+
+    /**
+     * Returns a string representation of the constraint.
+     *
+     * @return string
+     */
+    public function toString()
+    {
+        return 'is true';
+    }
+}?&gt;</pre></div></div><br class="example-break"></br><p>
+      The effort of implementing the <code class="literal">assertTrue()</code> and
+      <code class="literal">isTrue()</code> methods as well as the
+      <code class="literal">PHPUnit_Framework_Constraint_IsTrue</code> class yields the
+      benefit that <code class="literal">assertThat()</code> automatically takes care of
+      evaluating the assertion and bookkeeping tasks such as counting it for
+      statistics. Furthermore, the <code class="literal">isTrue()</code> method can be
+      used as a matcher when configuring mock objects.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="extending-phpunit.PHPUnit_Framework_TestListener"></a>Implement PHPUnit_Framework_TestListener</h2></div></div></div><p>
+      <a id="idp2168656" class="indexterm"></a>
+
+      <a class="xref" href="extending-phpunit.html#extending-phpunit.examples.SimpleTestListener.php" title="Example 19.3: A simple test listener">Example 19.3</a>
+      shows a simple implementation of the <code class="literal">PHPUnit_Framework_TestListener</code>
+      interface.
+    </p><div class="example"><a id="extending-phpunit.examples.SimpleTestListener.php"></a><p class="title"><strong>Example 19.3: A simple test listener</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+class SimpleTestListener implements PHPUnit_Framework_TestListener
+{
+    public function addError(PHPUnit_Framework_Test $test, Exception $e, $time)
+    {
+        printf("Error while running test '%s'.\n", $test-&gt;getName());
+    }
+
+    public function addFailure(PHPUnit_Framework_Test $test, PHPUnit_Framework_AssertionFailedError $e, $time)
+    {
+        printf("Test '%s' failed.\n", $test-&gt;getName());
+    }
+
+    public function addIncompleteTest(PHPUnit_Framework_Test $test, Exception $e, $time)
+    {
+        printf("Test '%s' is incomplete.\n", $test-&gt;getName());
+    }
+
+    public function addSkippedTest(PHPUnit_Framework_Test $test, Exception $e, $time)
+    {
+        printf("Test '%s' has been skipped.\n", $test-&gt;getName());
+    }
+
+    public function startTest(PHPUnit_Framework_Test $test)
+    {
+        printf("Test '%s' started.\n", $test-&gt;getName());
+    }
+
+    public function endTest(PHPUnit_Framework_Test $test, $time)
+    {
+        printf("Test '%s' ended.\n", $test-&gt;getName());
+    }
+
+    public function startTestSuite(PHPUnit_Framework_TestSuite $suite)
+    {
+        printf("TestSuite '%s' started.\n", $suite-&gt;getName());
+    }
+
+    public function endTestSuite(PHPUnit_Framework_TestSuite $suite)
+    {
+        printf("TestSuite '%s' ended.\n", $suite-&gt;getName());
+    }
+}
+?&gt;</pre></div></div><br class="example-break"></br><p>
+      In <a class="xref" href="appendixes.configuration.html#appendixes.configuration.test-listeners" title="Test Listeners">the section called “Test Listeners”</a> you can see
+      how to configure PHPUnit to attach your test listener to the test
+      execution.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="extending-phpunit.PHPUnit_Extensions_TestDecorator"></a>Subclass PHPUnit_Extensions_TestDecorator</h2></div></div></div><p>
+      <a id="idp1993536" class="indexterm"></a>
+
+      You can wrap test cases or test suites in a subclass of
+      <code class="literal">PHPUnit_Extensions_TestDecorator</code> and use the
+      Decorator design pattern to perform some actions before and after the
+      test runs.
+    </p><p>
+      <a id="idp1995104" class="indexterm"></a>
+      <a id="idp1995696" class="indexterm"></a>
+
+      PHPUnit ships with two concrete test decorators:
+      <code class="literal">PHPUnit_Extensions_RepeatedTest</code> and
+      <code class="literal">PHPUnit_Extensions_TestSetup</code>. The former is used to
+      run a test repeatedly and only count it as a success if all iterations
+      are successful. The latter was discussed in <a class="xref" href="fixtures.html" title="Chapter 6. Fixtures">Chapter 6</a>.
+    </p><p>
+      <a class="xref" href="extending-phpunit.html#extending-phpunit.examples.RepeatedTest.php" title="Example 19.4: The RepeatedTest Decorator">Example 19.4</a>
+      shows a cut-down version of the <code class="literal">PHPUnit_Extensions_RepeatedTest</code>
+      test decorator that illustrates how to write your own test decorators.
+    </p><div class="example"><a id="extending-phpunit.examples.RepeatedTest.php"></a><p class="title"><strong>Example 19.4: The RepeatedTest Decorator</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+require_once 'PHPUnit/Extensions/TestDecorator.php';
+
+class PHPUnit_Extensions_RepeatedTest extends PHPUnit_Extensions_TestDecorator
+{
+    private $timesRepeat = 1;
+
+    public function __construct(PHPUnit_Framework_Test $test, $timesRepeat = 1)
+    {
+        parent::__construct($test);
+
+        if (is_integer($timesRepeat) &amp;&amp;
+            $timesRepeat &gt;= 0) {
+            $this-&gt;timesRepeat = $timesRepeat;
+        }
+    }
+
+    public function count()
+    {
+        return $this-&gt;timesRepeat * $this-&gt;test-&gt;count();
+    }
+
+    public function run(PHPUnit_Framework_TestResult $result = NULL)
+    {
+        if ($result === NULL) {
+            $result = $this-&gt;createResult();
+        }
+
+        for ($i = 0; $i &lt; $this-&gt;timesRepeat &amp;&amp; !$result-&gt;shouldStop(); $i++) {
+            $this-&gt;test-&gt;run($result);
+        }
+
+        return $result;
+    }
+}
+?&gt;</pre></div></div><br class="example-break"></br></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="extending-phpunit.PHPUnit_Framework_Test"></a>Implement PHPUnit_Framework_Test</h2></div></div></div><p>
+      <a id="idp2003712" class="indexterm"></a>
+      <a id="idp2004288" class="indexterm"></a>
+
+      The <code class="literal">PHPUnit_Framework_Test</code> interface is narrow and
+      easy to implement. You can write an implementation of
+      <code class="literal">PHPUnit_Framework_Test</code> that is simpler than
+      <code class="literal">PHPUnit_Framework_TestCase</code> and that runs
+      <span class="emphasis"><em>data-driven tests</em></span>, for instance.
+    </p><p>
+      <a class="xref" href="extending-phpunit.html#extending-phpunit.examples.DataDrivenTest.php" title="Example 19.5: A data-driven test">Example 19.5</a>
+      shows a data-driven test case class that compares values from a file
+      with Comma-Separated Values (CSV). Each line of such a file looks like
+      <code class="literal">foo;bar</code>, where the first value is the one we expect
+      and the second value is the actual one.
+    </p><div class="example"><a id="extending-phpunit.examples.DataDrivenTest.php"></a><p class="title"><strong>Example 19.5: A data-driven test</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+class DataDrivenTest implements PHPUnit_Framework_Test
+{
+    private $lines;
+
+    public function __construct($dataFile)
+    {
+        $this-&gt;lines = file($dataFile);
+    }
+
+    public function count()
+    {
+        return 1;
+    }
+
+    public function run(PHPUnit_Framework_TestResult $result = NULL)
+    {
+        if ($result === NULL) {
+            $result = new PHPUnit_Framework_TestResult;
+        }
+
+        foreach ($this-&gt;lines as $line) {
+            $result-&gt;startTest($this);
+            PHP_Timer::start();
+            $stopTime = NULL;
+
+            list($expected, $actual) = explode(';', $line);
+
+            try {
+                PHPUnit_Framework_Assert::assertEquals(
+                  trim($expected), trim($actual)
+                );
+            }
+
+            catch (PHPUnit_Framework_AssertionFailedError $e) {
+                $stopTime = PHP_Timer::stop();
+                $result-&gt;addFailure($this, $e, $stopTime);
+            }
+
+            catch (Exception $e) {
+                $stopTime = PHP_Timer::stop();
+                $result-&gt;addError($this, $e, $stopTime);
+            }
+
+            if ($stopTime === NULL) {
+                $stopTime = PHP_Timer::stop();
+            }
+
+            $result-&gt;endTest($this, $stopTime);
+        }
+
+        return $result;
+    }
+}
+
+$test = new DataDrivenTest('data_file.csv');
+$result = PHPUnit_TextUI_TestRunner::run($test);
+?&gt;</pre><pre class="screen">PHPUnit 3.7.0 by Sebastian Bergmann.
+
+.F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) DataDrivenTest
+Failed asserting that two strings are equal.
+expected string &lt;bar&gt;
+difference      &lt;  x&gt;
+got string      &lt;baz&gt;
+/home/sb/DataDrivenTest.php:32
+/home/sb/DataDrivenTest.php:53
+
+FAILURES!
+Tests: 2, Failures: 1.</pre></div></div><br class="example-break"></br></div></div>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="logging.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="appendixes.assertions.html">Next</a></div>
+     </div>
+<div class="row"><div class="col-md-2"></div><div class="col-md-8"><div class="alert alert-info" style="text-align: center;">Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!</div></div><div class="col-md-2"></div></div>
+    </div>
+   </div>
+   <hr/>
+   <footer>
+    <p><a href="appendixes.copyright.html">Copyright</a> &copy; 2005-2014 <a href="http://sebastian-bergmann.de/">Sebastian Bergmann</a>.</p>
+   </footer>
+  </div>
+  <script src="js/jquery.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/highlight.pack.js"></script>
+  <script type="text/javascript">
+  $(document).ready(function() { $('pre.programlisting').each(function(i, e) {hljs.highlightBlock(e)}); });
+
+  var _paq = _paq || [];
+  _paq.push(["trackPageView"]);
+  _paq.push(["enableLinkTracking"]);
+
+  (function() {
+    var u=(("https:" == document.location.protocol) ? "https" : "http") + "://piwik.sebastian-bergmann.de/";
+    _paq.push(["setTrackerUrl", u+"piwik.php"]);
+    _paq.push(["setSiteId", "2"]);
+    var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
+    g.defer=true; g.async=true; g.src=u+"piwik.js"; s.parentNode.insertBefore(g,s);
+  })();
+  </script>
+ </body>
+</html>

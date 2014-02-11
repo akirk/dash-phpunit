@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8">
+  <title>PHPUnit Manual &#8211; Chapter 16. Skeleton Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/highlight.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
+  <!--[if lt IE 9]><script src="js/html5.js"></script><![endif]-->
+ </head>
+ <body>
+  
+  <div class="container">
+   <div class="row">
+    <div style='padding: 1.5em'>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="other-uses-for-tests.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="selenium.html">Next</a></div>
+     </div>
+<div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="skeleton-generator"></a>Chapter 16. Skeleton Generator</h1></div></div></div><p>
+    The PHPUnit Skeleton Generator is a tool that can generate skeleton test
+    classes from production code classes and vice versa. It can be installed
+    using the following command:
+  </p><pre class="screen"><strong class="userinput"><code>pear install phpunit/PHPUnit_SkeletonGenerator</code></strong></pre><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="skeleton-generator.test"></a>Generating a Test Case Class Skeleton</h2></div></div></div><p>
+    <a id="idp1869840" class="indexterm"></a>
+
+    When you are writing tests for existing code, you have to write the
+    same code fragments such as </p><pre class="programlisting">public function testMethod()
+{
+}</pre><p> over and over again. The PHPUnit Skeleton Generator can help
+    you by analyzing the code of the existing class and generating a skeleton
+    test case class for it.
+  </p><div class="example"><a id="skeleton-generator.examples.Calculator.php"></a><p class="title"><strong>Example 16.1: The Calculator class</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+class Calculator
+{
+    public function add($a, $b)
+    {
+        return $a + $b;
+    }
+}
+?&gt;</pre></div></div><br class="example-break"></br><p>
+    The following example shows how to generate a skeleton test class
+    for a class named <code class="literal">Calculator</code>
+    (see <a class="xref" href="skeleton-generator.html#skeleton-generator.examples.Calculator.php" title="Example 16.1: The Calculator class">Example 16.1</a>).
+  </p><pre class="screen"><strong class="userinput"><code>phpunit-skelgen --test Calculator</code></strong>
+PHPUnit Skeleton Generator 1.0.0 by Sebastian Bergmann.
+
+Wrote skeleton for "CalculatorTest" to "/home/sb/CalculatorTest.php".</pre><p>
+    <a id="idp1875584" class="indexterm"></a>
+
+    For each method in the original class, there will be an incomplete
+    test case (see <a class="xref" href="incomplete-and-skipped-tests.html" title="Chapter 9. Incomplete and Skipped Tests">Chapter 9</a>) in
+    the generated test case class.
+  </p><div class="alert alert-info"><h3 class="title">Namespaced Classes and the Skeleton Generator</h3><p>
+      When you are using the skeleton generator to generate code based on a
+      class that is declared in a <a class="ulink" href="http://php.net/namespace" target="_top">namespace</a>
+      you have to provide the qualified name of the class as well as the path to
+      the source file it is declared in.
+    </p><p>
+      For instance, for a class <code class="literal">Calculator</code> that is declared
+      in the <code class="literal">project</code> namespace you need to invoke the
+      skeleton generator like this:
+      </p><pre class="screen"><strong class="userinput"><code>phpunit-skelgen --test -- "project\Calculator" Calculator.php</code></strong>
+PHPUnit Skeleton Generator 1.0.0 by Sebastian Bergmann.
+
+Wrote skeleton for "project\CalculatorTest" to "/home/sb/CalculatorTest.php".</pre><p>
+    </p></div><p>
+    Below is the output of running the generated test case class.
+  </p><pre class="screen"><strong class="userinput"><code>phpunit --bootstrap Calculator.php --verbose CalculatorTest</code></strong>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+I
+
+Time: 0 seconds, Memory: 3.50Mb
+
+There was 1 incomplete test:
+
+1) CalculatorTest::testAdd
+This test has not been implemented yet.
+
+/home/sb/CalculatorTest.php:38
+OK, but incomplete or skipped tests!
+Tests: 1, Assertions: 0, Incomplete: 1.</pre><p>
+      <a id="idp1883184" class="indexterm"></a>
+      <a id="idp1883760" class="indexterm"></a>
+
+      You can use <code class="literal">@assert</code> annotation in the
+      documentation block of a method to automatically generate simple,
+      yet meaningful tests instead of incomplete test cases.
+      <a class="xref" href="skeleton-generator.html#skeleton-generator.test.examples.Calculator.php" title="Example 16.2: The Calculator class with @assert annotations">Example 16.2</a>
+      shows an example.
+    </p><div class="example"><a id="skeleton-generator.test.examples.Calculator.php"></a><p class="title"><strong>Example 16.2: The Calculator class with @assert annotations</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+class Calculator
+{
+    /**
+     * @assert (0, 0) == 0
+     * @assert (0, 1) == 1
+     * @assert (1, 0) == 1
+     * @assert (1, 1) == 2
+     */
+    public function add($a, $b)
+    {
+        return $a + $b;
+    }
+}
+?&gt;</pre></div></div><br class="example-break"></br><p>
+      Each method in the original class is checked for <code class="literal">@assert</code>
+      annotations. These are transformed into test code such as
+      </p><pre class="programlisting">    /**
+     * Generated from @assert (0, 0) == 0.
+     */
+    public function testAdd() {
+        $o = new Calculator;
+        $this-&gt;assertEquals(0, $o-&gt;add(0, 0));
+    }</pre><p>
+    </p><p>
+      Below is the output of running the generated test case class.
+    </p><pre class="screen"><strong class="userinput"><code>phpunit --bootstrap Calculator.php --verbose CalculatorTest</code></strong>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+....
+
+Time: 0 seconds, Memory: 3.50Mb
+
+OK (4 tests, 4 assertions)</pre><p>
+      <a class="xref" href="skeleton-generator.html#skeleton-generator.test.tables.assert-annotations" title="Table 16.1. Supported variations of the @assert annotation">Table 16.1</a>
+      shows the supported variations of the <code class="literal">@assert</code>
+      annotation and how they are transformed into test code.
+    </p><div class="table"><a id="skeleton-generator.test.tables.assert-annotations"></a><p class="title"><strong>Table 16.1. Supported variations of the @assert annotation</strong></p><div class="table-contents"><table summary="Supported variations of the @assert annotation" border="1"><colgroup><col></col><col></col></colgroup><thead><tr><th align="left">Annotation</th><th align="left">Transformed to</th></tr></thead><tbody><tr><td align="left"><code class="literal">@assert (...) == X</code></td><td align="left"><code class="literal">assertEquals(X, method(...))</code></td></tr><tr><td align="left"><code class="literal">@assert (...) != X</code></td><td align="left"><code class="literal">assertNotEquals(X, method(...))</code></td></tr><tr><td align="left"><code class="literal">@assert (...) === X</code></td><td align="left"><code class="literal">assertSame(X, method(...))</code></td></tr><tr><td align="left"><code class="literal">@assert (...) !== X</code></td><td align="left"><code class="literal">assertNotSame(X, method(...))</code></td></tr><tr><td align="left"><code class="literal">@assert (...) &gt; X</code></td><td align="left"><code class="literal">assertGreaterThan(X, method(...))</code></td></tr><tr><td align="left"><code class="literal">@assert (...) &gt;= X</code></td><td align="left"><code class="literal">assertGreaterThanOrEqual(X, method(...))</code></td></tr><tr><td align="left"><code class="literal">@assert (...) &lt; X</code></td><td align="left"><code class="literal">assertLessThan(X, method(...))</code></td></tr><tr><td align="left"><code class="literal">@assert (...) &lt;= X</code></td><td align="left"><code class="literal">assertLessThanOrEqual(X, method(...))</code></td></tr><tr><td align="left"><code class="literal">@assert (...) throws X</code></td><td align="left"><code class="literal">@expectedException X</code></td></tr></tbody></table></div></div><br class="table-break"></br></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="skeleton-generator.class"></a>Generating a Class Skeleton from a Test Case Class</h2></div></div></div><p>
+      When you are doing Test-Driven Development (see <a class="xref" href="test-driven-development.html" title="Chapter 12. Test-Driven Development">Chapter 12</a>)
+      and write your tests before the code that the tests exercise, PHPUnit can
+      help you generate class skeletons from test case classes.
+    </p><p>
+      Following the convention that the tests for a class <code class="literal">Unit</code>
+      are written in a class named <code class="literal">UnitTest</code>, the test case
+      class' source is searched for variables that reference objects of the
+      <code class="literal">Unit</code> class and analyzing what methods are called on
+      these objects. For example, take a look at <a class="xref" href="skeleton-generator.html#skeleton-generator.class.examples.BowlingGame.php" title="Example 16.4: The generated BowlingGame class skeleton">Example 16.4</a> which has
+      been generated based on the analysis of <a class="xref" href="skeleton-generator.html#skeleton-generator.class.examples.BowlingGameTest.php" title="Example 16.3: The BowlingGameTest class">Example 16.3</a>.
+    </p><div class="example"><a id="skeleton-generator.class.examples.BowlingGameTest.php"></a><p class="title"><strong>Example 16.3: The BowlingGameTest class</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+class BowlingGameTest extends PHPUnit_Framework_TestCase
+{
+    protected $game;
+
+    protected function setUp()
+    {
+        $this-&gt;game = new BowlingGame;
+    }
+
+    protected function rollMany($n, $pins)
+    {
+        for ($i = 0; $i &lt; $n; $i++) {
+            $this-&gt;game-&gt;roll($pins);
+        }
+    }
+
+    public function testScoreForGutterGameIs0()
+    {
+        $this-&gt;rollMany(20, 0);
+        $this-&gt;assertEquals(0, $this-&gt;game-&gt;score());
+    }
+}
+?&gt;</pre></div></div><br class="example-break"></br><pre class="screen"><strong class="userinput"><code>phpunit-skelgen --class BowlingGameTest</code></strong>
+PHPUnit Skeleton Generator 1.0.0 by Sebastian Bergmann.
+
+Wrote skeleton for "BowlingGame" to "./BowlingGame.php".</pre><div class="example"><a id="skeleton-generator.class.examples.BowlingGame.php"></a><p class="title"><strong>Example 16.4: The generated BowlingGame class skeleton</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+/**
+ * Generated by PHPUnit_SkeletonGenerator on 2012-01-09 at 16:55:58.
+ */
+class BowlingGame
+{
+    /**
+     * @todo Implement roll().
+     */
+    public function roll()
+    {
+        // Remove the following line when you implement this method.
+        throw new RuntimeException('Not yet implemented.');
+    }
+
+    /**
+     * @todo Implement score().
+     */
+    public function score()
+    {
+        // Remove the following line when you implement this method.
+        throw new RuntimeException('Not yet implemented.');
+    }
+}
+?&gt;</pre></div></div><br class="example-break"></br><p>
+      Below is the output of running the test against the generated class.
+    </p><pre class="screen"><strong class="userinput"><code>phpunit --bootstrap BowlingGame.php BowlingGameTest</code></strong>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+E
+
+Time: 0 seconds, Memory: 3.50Mb
+
+There was 1 error:
+
+1) BowlingGameTest::testScoreForGutterGameIs0
+RuntimeException: Not yet implemented.
+
+/home/sb/BowlingGame.php:13
+/home/sb/BowlingGameTest.php:14
+/home/sb/BowlingGameTest.php:20
+
+FAILURES!
+Tests: 1, Assertions: 0, Errors: 1.</pre></div></div>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="other-uses-for-tests.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="selenium.html">Next</a></div>
+     </div>
+<div class="row"><div class="col-md-2"></div><div class="col-md-8"><div class="alert alert-info" style="text-align: center;">Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!</div></div><div class="col-md-2"></div></div>
+    </div>
+   </div>
+   <hr/>
+   <footer>
+    <p><a href="appendixes.copyright.html">Copyright</a> &copy; 2005-2014 <a href="http://sebastian-bergmann.de/">Sebastian Bergmann</a>.</p>
+   </footer>
+  </div>
+  <script src="js/jquery.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/highlight.pack.js"></script>
+  <script type="text/javascript">
+  $(document).ready(function() { $('pre.programlisting').each(function(i, e) {hljs.highlightBlock(e)}); });
+
+  var _paq = _paq || [];
+  _paq.push(["trackPageView"]);
+  _paq.push(["enableLinkTracking"]);
+
+  (function() {
+    var u=(("https:" == document.location.protocol) ? "https" : "http") + "://piwik.sebastian-bergmann.de/";
+    _paq.push(["setTrackerUrl", u+"piwik.php"]);
+    _paq.push(["setSiteId", "2"]);
+    var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
+    g.defer=true; g.async=true; g.src=u+"piwik.js"; s.parentNode.insertBefore(g,s);
+  })();
+  </script>
+ </body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8">
+  <title>PHPUnit Manual &#8211; Chapter 2. PHPUnit's Goals</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/highlight.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
+  <!--[if lt IE 9]><script src="js/html5.js"></script><![endif]-->
+ </head>
+ <body>
+  
+  <div class="container">
+   <div class="row">
+    <div style='padding: 1.5em'>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="automating-tests.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="installation.html">Next</a></div>
+     </div>
+<div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="goals"></a>Chapter 2. PHPUnit's Goals</h1></div></div></div><p>
+    So far, we only have two tests for the <code class="literal">array</code> built-in
+    and the <code class="literal">count()</code> function. When we start to test the
+    numerous <code class="literal">array_*()</code> functions PHP offers, we will need
+    to write a test for each of them. We could write the infrastructure for
+    all these tests from scratch. However, it is much better to write a
+    testing infrastructure once and then write only the unique parts of each
+    test. PHPUnit is such an infrastructure.
+  </p><p>
+    A framework such as PHPUnit has to resolve a set of constraints, some of
+    which seem always to conflict with each other. Simultaneously, tests
+    should be:
+  </p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><span class="emphasis"><em>Easy to learn to write.</em></span></span></dt><dd><p>
+          If it's hard to learn how to write tests, developers will not learn
+          to write them.
+        </p></dd><dt><span class="term"><span class="emphasis"><em>Easy to write.</em></span></span></dt><dd><p>
+          If tests are not easy to write, developers will not write them.
+        </p></dd><dt><span class="term"><span class="emphasis"><em>Easy to read.</em></span></span></dt><dd><p>
+          Test code should contain no extraneous overhead so that the test
+          itself does not get lost in noise that surrounds it.
+        </p></dd><dt><span class="term"><span class="emphasis"><em>Easy to execute.</em></span></span></dt><dd><p>
+          The tests should run at the touch of a button and present their
+          results in a clear and unambiguous format.
+        </p></dd><dt><span class="term"><span class="emphasis"><em>Quick to execute.</em></span></span></dt><dd><p>
+          Tests should run fast so they can be run hundreds or thousands
+          of times a day.
+        </p></dd><dt><span class="term"><span class="emphasis"><em>Isolated.</em></span></span></dt><dd><p>
+          The tests should not affect each other. If the order in which the
+          tests are run changes, the results of the tests should not change.
+        </p></dd><dt><span class="term"><span class="emphasis"><em>Composable.</em></span></span></dt><dd><p>
+          We should be able to run any number or combination of tests together.
+          This is a corollary of isolation.
+        </p></dd></dl></div><p>
+    There are two main clashes between these constraints:
+  </p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><span class="emphasis"><em>Easy to learn to write versus easy to write.</em></span></span></dt><dd><p>
+          Tests do not generally require all the flexibility of a programming
+          language. Many testing tools provide their own scripting language
+          that only includes the minimum necessary features for writing tests.
+          The resulting tests are easy to read and write because they have no
+          noise to distract you from the content of the tests. However,
+          learning yet another programming language and set of programming
+          tools is inconvenient and clutters the mind.
+        </p></dd><dt><span class="term"><span class="emphasis"><em>Isolated versus quick to execute.</em></span></span></dt><dd><p>
+          If you want the results of one test to have no effect on the results
+          of another test, each test should create the full state of the world
+          before it begins to execute and return the world to its original
+          state when it finishes. However, setting up the world can take a
+          long time: for example connecting to a database and initializing it
+          to a known state using realistic data.
+        </p></dd></dl></div><p>
+    PHPUnit attempts to resolve these conflicts by using PHP as the testing
+    language. Sometimes the full power of PHP is overkill for writing little
+    straight-line tests, but by using PHP we leverage all the experience and
+    tools programmers already have in place. Since we are trying to convince
+    reluctant testers, lowering the barrier to writing those initial tests
+    is particularly important.
+  </p><p>
+    PHPUnit errs on the side of isolation over quick execution. Isolated
+    tests are valuable because they provide high-quality feedback. You do
+    not get a report with a bunch of test failures, which were really caused
+    because one test at the beginning of the suite failed and left the world
+    messed up for the rest of the tests. This orientation towards isolated
+    tests encourages designs with a large number of simple objects. Each
+    object can be tested quickly in isolation. The result is better designs
+    <span class="emphasis"><em>and</em></span> faster tests.
+  </p><p>
+    PHPUnit assumes that most tests succeed and it is not worth reporting
+    the details of successful tests. When a test fails, that fact is worth
+    noting and reporting. The vast majority of tests should succeed and are
+    not worth commenting on except to count the number of tests that run.
+    This is an assumption that is really built into the reporting classes,
+    and not into the core of PHPUnit. When the results of a test run are
+    reported, you see how many tests were executed, but you only see details
+    for those that failed.
+  </p><p>
+    Tests are expected to be fine-grained, testing one aspect of one object.
+    Hence, the first time a test fails, execution of the test halts, and
+    PHPUnit reports the failure. It is an art to test by running in many
+    small tests. Fine-grained tests improve the overall design of the system.
+  </p><p>
+    When you test an object with PHPUnit, you do so only through the
+    object's public interface. Testing based only on publicly visible
+    behaviour encourages you to confront and solve difficult design problems
+    earlier, before the results of poor design can infect large parts of the
+    system.
+  </p></div>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="automating-tests.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="installation.html">Next</a></div>
+     </div>
+<div class="row"><div class="col-md-2"></div><div class="col-md-8"><div class="alert alert-info" style="text-align: center;">Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!</div></div><div class="col-md-2"></div></div>
+    </div>
+   </div>
+   <hr/>
+   <footer>
+    <p><a href="appendixes.copyright.html">Copyright</a> &copy; 2005-2014 <a href="http://sebastian-bergmann.de/">Sebastian Bergmann</a>.</p>
+   </footer>
+  </div>
+  <script src="js/jquery.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/highlight.pack.js"></script>
+  <script type="text/javascript">
+  $(document).ready(function() { $('pre.programlisting').each(function(i, e) {hljs.highlightBlock(e)}); });
+
+  var _paq = _paq || [];
+  _paq.push(["trackPageView"]);
+  _paq.push(["enableLinkTracking"]);
+
+  (function() {
+    var u=(("https:" == document.location.protocol) ? "https" : "http") + "://piwik.sebastian-bergmann.de/";
+    _paq.push(["setTrackerUrl", u+"piwik.php"]);
+    _paq.push(["setSiteId", "2"]);
+    var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
+    g.defer=true; g.async=true; g.src=u+"piwik.js"; s.parentNode.insertBefore(g,s);
+  })();
+  </script>
+ </body>
+</html>

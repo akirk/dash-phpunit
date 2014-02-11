@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8">
+  <title>PHPUnit Manual &#8211; Chapter 18. Logging</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/highlight.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
+  <!--[if lt IE 9]><script src="js/html5.js"></script><![endif]-->
+ </head>
+ <body>
+  
+  <div class="container">
+   <div class="row">
+    <div style='padding: 1.5em'>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="selenium.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="extending-phpunit.html">Next</a></div>
+     </div>
+<div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="logging"></a>Chapter 18. Logging</h1></div></div></div><p>
+    <a id="idp436160" class="indexterm"></a>
+
+    PHPUnit can produce several types of logfiles.
+  </p><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="logging.xml"></a>Test Results (XML)</h2></div></div></div><p>
+      The XML logfile for test results produced by PHPUnit is based upon the one
+      used by the <a class="ulink" href="http://ant.apache.org/manual/OptionalTasks/junit.html" target="_top">JUnit
+      task for Apache Ant</a>. The following example shows the XML
+      logfile generated for the tests in <code class="literal">ArrayTest</code>:
+    </p><pre class="screen">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;testsuites&gt;
+  &lt;testsuite name="ArrayTest"
+             file="/home/sb/ArrayTest.php"
+             tests="2"
+             assertions="2"
+             failures="0"
+             errors="0"
+             time="0.016030"&gt;
+    &lt;testcase name="testNewArrayIsEmpty"
+              class="ArrayTest"
+              file="/home/sb/ArrayTest.php"
+              line="6"
+              assertions="1"
+              time="0.008044"/&gt;
+    &lt;testcase name="testArrayContainsAnElement"
+              class="ArrayTest"
+              file="/home/sb/ArrayTest.php"
+              line="15"
+              assertions="1"
+              time="0.007986"/&gt;
+  &lt;/testsuite&gt;
+&lt;/testsuites&gt;</pre><p>
+      The following XML logfile was generated for two tests,
+      <code class="literal">testFailure</code> and <code class="literal">testError</code>,
+      of a test case class named <code class="literal">FailureErrorTest</code> and
+      shows how failures and errors are denoted.
+    </p><pre class="screen">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;testsuites&gt;
+  &lt;testsuite name="FailureErrorTest"
+             file="/home/sb/FailureErrorTest.php"
+             tests="2"
+             assertions="1"
+             failures="1"
+             errors="1"
+             time="0.019744"&gt;
+    &lt;testcase name="testFailure"
+              class="FailureErrorTest"
+              file="/home/sb/FailureErrorTest.php"
+              line="6"
+              assertions="1"
+              time="0.011456"&gt;
+      &lt;failure type="PHPUnit_Framework_ExpectationFailedException"&gt;
+testFailure(FailureErrorTest)
+Failed asserting that &amp;lt;integer:2&amp;gt; matches expected value &amp;lt;integer:1&amp;gt;.
+
+/home/sb/FailureErrorTest.php:8
+&lt;/failure&gt;
+    &lt;/testcase&gt;
+    &lt;testcase name="testError"
+              class="FailureErrorTest"
+              file="/home/sb/FailureErrorTest.php"
+              line="11"
+              assertions="0"
+              time="0.008288"&gt;
+      &lt;error type="Exception"&gt;testError(FailureErrorTest)
+Exception:
+
+/home/sb/FailureErrorTest.php:13
+&lt;/error&gt;
+    &lt;/testcase&gt;
+  &lt;/testsuite&gt;
+&lt;/testsuites&gt;</pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="logging.tap"></a>Test Results (TAP)</h2></div></div></div><p>
+      The <a class="ulink" href="http://testanything.org/" target="_top">Test Anything Protocol (TAP)</a>
+      is Perl's simple text-based interface between testing modules. The
+      following example shows the TAP logfile generated for the tests in
+      <code class="literal">ArrayTest</code>:
+    </p><pre class="screen">TAP version 13
+ok 1 - testNewArrayIsEmpty(ArrayTest)
+ok 2 - testArrayContainsAnElement(ArrayTest)
+1..2</pre><p>
+      The following TAP logfile was generated for two tests,
+      <code class="literal">testFailure</code> and <code class="literal">testError</code>,
+      of a test case class named <code class="literal">FailureErrorTest</code> and
+      shows how failures and errors are denoted.
+    </p><pre class="screen">TAP version 13
+not ok 1 - Failure: testFailure(FailureErrorTest)
+  ---
+  message: 'Failed asserting that &lt;integer:2&gt; matches expected value &lt;integer:1&gt;.'
+  severity: fail
+  data:
+    got: 2
+    expected: 1
+  ...
+not ok 2 - Error: testError(FailureErrorTest)
+1..2</pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="logging.json"></a>Test Results (JSON)</h2></div></div></div><p>
+      The <a class="ulink" href="http://www.json.org/" target="_top">JavaScript Object Notation (JSON)</a>
+      is a lightweight data-interchange format. The following example shows
+      the JSON messages generated for the tests in <code class="literal">ArrayTest</code>:
+    </p><pre class="screen">{"event":"suiteStart","suite":"ArrayTest","tests":2}
+{"event":"test","suite":"ArrayTest",
+ "test":"testNewArrayIsEmpty(ArrayTest)","status":"pass",
+ "time":0.000460147858,"trace":[],"message":""}
+{"event":"test","suite":"ArrayTest",
+ "test":"testArrayContainsAnElement(ArrayTest)","status":"pass",
+ "time":0.000422954559,"trace":[],"message":""}</pre><p>
+      The following JSON messages were generated for two tests,
+      <code class="literal">testFailure</code> and <code class="literal">testError</code>,
+      of a test case class named <code class="literal">FailureErrorTest</code> and
+      show how failures and errors are denoted.
+    </p><pre class="screen">{"event":"suiteStart","suite":"FailureErrorTest","tests":2}
+{"event":"test","suite":"FailureErrorTest",
+ "test":"testFailure(FailureErrorTest)","status":"fail",
+ "time":0.0082459449768066,"trace":[],
+ "message":"Failed asserting that &lt;integer:2&gt; is equal to &lt;integer:1&gt;."}
+{"event":"test","suite":"FailureErrorTest",
+ "test":"testError(FailureErrorTest)","status":"error",
+ "time":0.0083680152893066,"trace":[],"message":""}</pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="logging.codecoverage.xml"></a>Code Coverage (XML)</h2></div></div></div><p>
+      The XML format for code coverage information logging produced by PHPUnit
+      is loosely based upon the one used by <a class="ulink" href="http://www.atlassian.com/software/clover/" target="_top">
+      Clover</a>. The following example shows the XML
+      logfile generated for the tests in <code class="literal">BankAccountTest</code>:
+    </p><pre class="screen">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;coverage generated="1184835473" phpunit="3.6.0"&gt;
+  &lt;project name="BankAccountTest" timestamp="1184835473"&gt;
+    &lt;file name="/home/sb/BankAccount.php"&gt;
+      &lt;class name="BankAccountException"&gt;
+        &lt;metrics methods="0" coveredmethods="0" statements="0"
+                 coveredstatements="0" elements="0" coveredelements="0"/&gt;
+      &lt;/class&gt;
+      &lt;class name="BankAccount"&gt;
+        &lt;metrics methods="4" coveredmethods="4" statements="13"
+                 coveredstatements="5" elements="17" coveredelements="9"/&gt;
+      &lt;/class&gt;
+      &lt;line num="77" type="method" count="3"/&gt;
+      &lt;line num="79" type="stmt" count="3"/&gt;
+      &lt;line num="89" type="method" count="2"/&gt;
+      &lt;line num="91" type="stmt" count="2"/&gt;
+      &lt;line num="92" type="stmt" count="0"/&gt;
+      &lt;line num="93" type="stmt" count="0"/&gt;
+      &lt;line num="94" type="stmt" count="2"/&gt;
+      &lt;line num="96" type="stmt" count="0"/&gt;
+      &lt;line num="105" type="method" count="1"/&gt;
+      &lt;line num="107" type="stmt" count="1"/&gt;
+      &lt;line num="109" type="stmt" count="0"/&gt;
+      &lt;line num="119" type="method" count="1"/&gt;
+      &lt;line num="121" type="stmt" count="1"/&gt;
+      &lt;line num="123" type="stmt" count="0"/&gt;
+      &lt;metrics loc="126" ncloc="37" classes="2" methods="4" coveredmethods="4"
+               statements="13" coveredstatements="5" elements="17"
+               coveredelements="9"/&gt;
+    &lt;/file&gt;
+    &lt;metrics files="1" loc="126" ncloc="37" classes="2" methods="4"
+             coveredmethods="4" statements="13" coveredstatements="5"
+             elements="17" coveredelements="9"/&gt;
+  &lt;/project&gt;
+&lt;/coverage&gt;</pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="logging.codecoverage.text"></a>Code Coverage (TEXT)</h2></div></div></div><p>
+      Human readable code coverage output for the command-line or a text file.
+      
+      The aim of this output format is to provide a quick coverage overview while
+      working on a small set of classes. For bigger projects this output can be
+      useful to get an quick overview of the projects coverage or when used with 
+      the <code class="literal">--filter</code> functionality.
+
+      When used from the command-line by writing to <code class="literal">php://stdout</code>
+      this will honor the <code class="literal">--colors</code> setting.
+
+      Writing to standard out is the default option when used from the command-line.
+
+      By default this will only show files that have at least one covered line.
+      This can only be changed via the <code class="literal">showUncoveredFiles</code> xml
+      configuration option. See <a class="xref" href="appendixes.configuration.html#appendixes.configuration.logging" title="Logging">the section called “Logging”</a>.
+    </p><div class="figure"><a id="code-coverage-analysis.figures.Code_Coverage4.png"></a><p class="title"><strong>Figure 18.1. Code Coverage output on the command-line with colors</strong></p><div class="figure-contents"><div><img src="http://phpunit.de/manual/current/en/figures/Code_Coverage4.png" alt="Code Coverage output on the command-line with colors"></img></div></div></div><br class="figure-break"></br></div></div>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="selenium.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="extending-phpunit.html">Next</a></div>
+     </div>
+<div class="row"><div class="col-md-2"></div><div class="col-md-8"><div class="alert alert-info" style="text-align: center;">Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!</div></div><div class="col-md-2"></div></div>
+    </div>
+   </div>
+   <hr/>
+   <footer>
+    <p><a href="appendixes.copyright.html">Copyright</a> &copy; 2005-2014 <a href="http://sebastian-bergmann.de/">Sebastian Bergmann</a>.</p>
+   </footer>
+  </div>
+  <script src="js/jquery.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/highlight.pack.js"></script>
+  <script type="text/javascript">
+  $(document).ready(function() { $('pre.programlisting').each(function(i, e) {hljs.highlightBlock(e)}); });
+
+  var _paq = _paq || [];
+  _paq.push(["trackPageView"]);
+  _paq.push(["enableLinkTracking"]);
+
+  (function() {
+    var u=(("https:" == document.location.protocol) ? "https" : "http") + "://piwik.sebastian-bergmann.de/";
+    _paq.push(["setTrackerUrl", u+"piwik.php"]);
+    _paq.push(["setSiteId", "2"]);
+    var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
+    g.defer=true; g.async=true; g.src=u+"piwik.js"; s.parentNode.insertBefore(g,s);
+  })();
+  </script>
+ </body>
+</html>

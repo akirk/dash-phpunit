@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8">
+  <title>PHPUnit Manual &#8211; Appendix B. Annotations</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/highlight.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
+  <!--[if lt IE 9]><script src="js/html5.js"></script><![endif]-->
+ </head>
+ <body>
+  
+  <div class="container">
+   <div class="row">
+    <div style='padding: 1.5em'>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="appendixes.assertions.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="appendixes.configuration.html">Next</a></div>
+     </div>
+<div class="appendix"><div class="titlepage"><div><div><h1 class="title"><a id="appendixes.annotations"></a>Appendix B. Annotations</h1></div></div></div><p>
+    <a id="idp1669296" class="indexterm"></a>
+
+    An annotation is a special form of syntactic metadata that can be added to
+    the source code of some programming languages. While PHP has no dedicated
+    language feature for annotating source code, the usage of tags such as
+    <code class="literal">@annotation arguments</code> in documentation block has been
+    established in the PHP community to annotate source code. In PHP
+    documentation blocks are reflective: they can be accessed through the
+    Reflection API's <code class="literal">getDocComment()</code> method on the function,
+    class, method, and attribute level. Applications such as PHPUnit use this
+    information at runtime to configure their behaviour.
+  </p><p>
+    This appendix shows all the varieties of annotations supported by PHPUnit.
+  </p><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.author"></a>@author</h2></div></div></div><p>
+      <a id="idp2206928" class="indexterm"></a>
+
+      The <code class="literal">@author</code> annotation is an alias for the
+      <code class="literal">@group</code> annotation (see <a class="xref" href="appendixes.annotations.html#appendixes.annotations.group" title="@group">the section called “@group”</a>) and allows to filter tests based
+      on their authors.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.backupGlobals"></a>@backupGlobals</h2></div></div></div><p>
+      <a id="idp2210448" class="indexterm"></a>
+
+      The backup and restore operations for global variables can be completely
+      disabled for all tests of a test case class like this </p><pre class="programlisting">/**
+ * @backupGlobals disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</pre><p>
+    </p><p>
+      <a id="idp2212256" class="indexterm"></a>
+
+      The <code class="literal">@backupGlobals</code> annotation can also be used on the
+      test method level. This allows for a fine-grained configuration of the
+      backup and restore operations: </p><pre class="programlisting">/**
+ * @backupGlobals disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @backupGlobals enabled
+     */
+    public function testThatInteractsWithGlobalVariables()
+    {
+        // ...
+    }
+}</pre><p>
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.backupStaticAttributes"></a>@backupStaticAttributes</h2></div></div></div><p>
+      <a id="idp2215776" class="indexterm"></a>
+
+      The backup and restore operations for static attributes of classes can be
+      completely disabled for all tests of a test case class like this
+      </p><pre class="programlisting">/**
+ * @backupStaticAttributes disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</pre><p>
+    </p><p>
+      <a id="idp2217616" class="indexterm"></a>
+
+      The <code class="literal">@backupStaticAttributes</code> annotation can also be used
+      on the test method level. This allows for a fine-grained configuration of
+      the backup and restore operations: </p><pre class="programlisting">/**
+ * @backupStaticAttributes disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @backupStaticAttributes enabled
+     */
+    public function testThatInteractsWithStaticAttributes()
+    {
+        // ...
+    }
+}</pre><p>
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.codeCoverageIgnore"></a>@codeCoverageIgnore*</h2></div></div></div><p>
+      <a id="idp2221152" class="indexterm"></a>
+      <a id="idp2221728" class="indexterm"></a>
+      <a id="idp2222272" class="indexterm"></a>
+
+      The <code class="literal">@codeCoverageIgnore</code>, 
+      <code class="literal">@codeCoverageIgnoreStart</code> and 
+      <code class="literal">@codeCoverageIgnoreEnd</code> annotations can be used 
+      to exclude lines of code from the coverage analysis. 
+    </p><p>
+      For usage see <a class="xref" href="code-coverage-analysis.html#code-coverage-analysis.ignoring-code-blocks" title="Ignoring Code Blocks">the section called “Ignoring Code Blocks”</a>.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.covers"></a>@covers</h2></div></div></div><p>
+      <a id="idp2226960" class="indexterm"></a>
+      <a id="idp2227536" class="indexterm"></a>
+
+      The <code class="literal">@covers</code> annotation can be used in the test code to
+      specify which method(s) a test method wants to test: </p><pre class="programlisting">/**
+ * @covers BankAccount::getBalance
+ */
+public function testBalanceIsInitiallyZero()
+{
+    $this-&gt;assertEquals(0, $this-&gt;ba-&gt;getBalance());
+}</pre><p>
+    </p><p>
+      If provided, only the code coverage information for the specified
+      method(s) will be considered.
+    </p><p>
+      <a class="xref" href="appendixes.annotations.html#appendixes.annotations.covers.tables.annotations" title="Table B.1. Annotations for specifying which methods are covered by a test">Table B.1</a> shows
+      the syntax of the <code class="literal">@covers</code> annotation.
+    </p><div class="table"><a id="appendixes.annotations.covers.tables.annotations"></a><p class="title"><strong>Table B.1. Annotations for specifying which methods are covered by a test</strong></p><div class="table-contents"><table summary="Annotations for specifying which methods are covered by a test" border="1"><colgroup><col></col><col></col></colgroup><thead><tr><th align="left">Annotation</th><th align="left">Description</th></tr></thead><tbody><tr><td align="left"><code class="literal">@covers ClassName::methodName</code></td><td align="left"><code class="literal">Specifies that the annotated test method covers the specified method.</code></td></tr><tr><td align="left"><code class="literal">@covers ClassName</code></td><td align="left"><code class="literal">Specifies that the annotated test method covers all methods of a given class.</code></td></tr><tr><td align="left"><code class="literal">@covers ClassName&lt;extended&gt;</code></td><td align="left"><code class="literal">Specifies that the annotated test method covers all methods of a given class and its parent class(es) and interface(s).</code></td></tr><tr><td align="left"><code class="literal">@covers ClassName::&lt;public&gt;</code></td><td align="left"><code class="literal">Specifies that the annotated test method covers all public methods of a given class.</code></td></tr><tr><td align="left"><code class="literal">@covers ClassName::&lt;protected&gt;</code></td><td align="left"><code class="literal">Specifies that the annotated test method covers all protected methods of a given class.</code></td></tr><tr><td align="left"><code class="literal">@covers ClassName::&lt;private&gt;</code></td><td align="left"><code class="literal">Specifies that the annotated test method covers all private methods of a given class.</code></td></tr><tr><td align="left"><code class="literal">@covers ClassName::&lt;!public&gt;</code></td><td align="left"><code class="literal">Specifies that the annotated test method covers all methods of a given class that are not public.</code></td></tr><tr><td align="left"><code class="literal">@covers ClassName::&lt;!protected&gt;</code></td><td align="left"><code class="literal">Specifies that the annotated test method covers all methods of a given class that are not protected.</code></td></tr><tr><td align="left"><code class="literal">@covers ClassName::&lt;!private&gt;</code></td><td align="left"><code class="literal">Specifies that the annotated test method covers all methods of a given class that are not private.</code></td></tr><tr><td align="left"><code class="literal">@covers ::functionName</code></td><td align="left"><code class="literal">Specifies that the annotated test method covers the specified global function.</code></td></tr></tbody></table></div></div><br class="table-break"></br></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.coversDefaultClass"></a>@coversDefaultClass</h2></div></div></div><p>
+      <a id="idp2472816" class="indexterm"></a>
+
+      The <code class="literal">@coversDefaultClass</code> annotation can be used to
+      specify a default namespace or class name so long names don't need to be
+      repeated for every <code class="literal">@covers</code> annotation. See
+      <a class="xref" href="appendixes.annotations.html#appendixes.annotations.examples.CoversDefaultClassTest.php" title="Example B.1: Using @coversDefaultClass to shorten annotations">Example B.1</a>.
+    </p><div class="example"><a id="appendixes.annotations.examples.CoversDefaultClassTest.php"></a><p class="title"><strong>Example B.1: Using @coversDefaultClass to shorten annotations</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+/**
+ * @coversDefaultClass \Foo\CoveredClass
+ */
+class CoversDefaultClassTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @covers ::publicMethod
+     */
+    public function testSomething()
+    {
+        $o = new Foo\CoveredClass;
+        $o-&gt;publicMethod();
+    }
+}
+?&gt;</pre></div></div><br class="example-break"></br></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.coversNothing"></a>@coversNothing</h2></div></div></div><p>
+      <a id="idp2478608" class="indexterm"></a>
+
+      The <code class="literal">@coversNothing</code> annotation can be used in the 
+      test code to specify that no code coverage information will be 
+      recorded for the annotated test case.
+    </p><p>
+        This can be used for integration testing. See 
+        <a class="xref" href="code-coverage-analysis.html#code-coverage-analysis.specifying-covered-methods.examples.GuestbookIntegrationTest.php" title="Example 14.3: A test that specifies that no method should be covered">Example 14.3</a>
+        for an example.
+    </p><p>    
+        The annotation can be used on the class and the method level and
+        will override any <code class="literal">@covers</code> tags.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.dataProvider"></a>@dataProvider</h2></div></div></div><p>
+      <a id="idp2483520" class="indexterm"></a>
+
+      A test method can accept arbitrary arguments. These arguments are to be
+      provided by a data provider method (<code class="literal">provider()</code> in
+      <a class="xref" href="writing-tests-for-phpunit.html#writing-tests-for-phpunit.data-providers.examples.DataTest.php" title="Example 4.5: Using a data provider that returns an array of arrays">Example 4.5</a>).
+      The data provider method to be used is specified using the
+      <code class="literal">@dataProvider</code> annotation.
+    </p><p>
+      See <a class="xref" href="writing-tests-for-phpunit.html#writing-tests-for-phpunit.data-providers" title="Data Providers">the section called “Data Providers”</a> for more
+      details.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.depends"></a>@depends</h2></div></div></div><p>
+      <a id="idp2488464" class="indexterm"></a>
+
+      PHPUnit supports the declaration of explicit dependencies between test
+      methods. Such dependencies do not define the order in which the test
+      methods are to be executed but they allow the returning of an instance of
+      the test fixture by a producer and passing it to the dependent consumers.
+      <a class="xref" href="writing-tests-for-phpunit.html#writing-tests-for-phpunit.examples.StackTest2.php" title="Example 4.2: Using the @depends annotation to express dependencies">Example 4.2</a> shows
+      how to use the <code class="literal">@depends</code> annotation to express
+      dependencies between test methods.
+    </p><p>
+      See <a class="xref" href="writing-tests-for-phpunit.html#writing-tests-for-phpunit.test-dependencies" title="Test Dependencies">the section called “Test Dependencies”</a> for more
+      details.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.expectedException"></a>@expectedException</h2></div></div></div><p>
+      <a id="idp2493152" class="indexterm"></a>
+
+      <a class="xref" href="writing-tests-for-phpunit.html#writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" title="Example 4.9: Using the @expectedException annotation">Example 4.9</a>
+      shows how to use the <code class="literal">@expectedException</code> annotation to
+      test whether an exception is thrown inside the tested code.
+    </p><p>
+      See <a class="xref" href="writing-tests-for-phpunit.html#writing-tests-for-phpunit.exceptions" title="Testing Exceptions">the section called “Testing Exceptions”</a> for more
+      details.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.expectedExceptionCode"></a>@expectedExceptionCode</h2></div></div></div><p>
+      <a id="idp2497552" class="indexterm"></a>
+
+      The <code class="literal">@expectedExceptionCode</code> annotation, in conjunction
+      with the <code class="literal">@expectedException</code> allows making assertions on
+      the error code of a thrown exception thus being able to narrow down a
+      specific exception.
+
+      </p><pre class="programlisting">class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException     MyException
+     * @expectedExceptionCode 20
+     */
+    public function testExceptionHasErrorcode20()
+    {
+        throw new MyException('Some Message', 20);
+    }
+}</pre><p>
+
+      To ease testing and reduce duplication a shortcut can be used to
+      specify a class constant as an
+      <code class="literal">@expectedExceptionCode</code> using the
+      "<code class="literal">@expectedExceptionCode ClassName::CONST</code>" syntax.
+
+      </p><pre class="programlisting">class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+      * @expectedException     MyException
+      * @expectedExceptionCode MyClass::ERRORCODE
+      */
+    public function testExceptionHasErrorcode20()
+    {
+      throw new MyException('Some Message', 20);
+    }
+}
+class MyClass
+{
+    const ERRORCODE = 20;
+}</pre><p>
+
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.expectedExceptionMessage"></a>@expectedExceptionMessage</h2></div></div></div><p>
+      <a id="idp2503296" class="indexterm"></a>
+
+      The <code class="literal">@expectedExceptionMessage</code> annotation works similar
+      to <code class="literal">@expectedExceptionCode</code> as it lets you make an
+      assertion on the error message of an exception.
+
+      </p><pre class="programlisting">class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException        MyException
+     * @expectedExceptionMessage Some Message
+     */
+    public function testExceptionHasRightMessage()
+    {
+        throw new MyException('Some Message', 20);
+    }
+}</pre><p>
+
+      The expected message can be a substring of the exception Message.
+      This can be useful to only assert that a certain name or parameter that
+      was passed in shows up in the exception and not fixate the whole
+      exception message in the test.
+
+      </p><pre class="programlisting">class MyTest extends PHPUnit_Framework_TestCase
+{
+     /**
+      * @expectedException        MyException
+      * @expectedExceptionMessage broken
+      */
+     public function testExceptionHasRightMessage()
+     {
+         $param = "broken";
+         throw new MyException('Invalid parameter "'.$param.'".', 20);
+     }
+}</pre><p>
+
+      To ease testing and reduce duplication a shortcut can be used to
+      specify a class constant as an
+      <code class="literal">@expectedExceptionMessage</code> using the
+      "<code class="literal">@expectedExceptionMessage ClassName::CONST</code>" syntax.
+
+      A sample can be found in <a class="xref" href="appendixes.annotations.html#appendixes.annotations.expectedExceptionCode" title="@expectedExceptionCode">the section called “@expectedExceptionCode”</a>.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.group"></a>@group</h2></div></div></div><p>
+      <a id="idp2509888" class="indexterm"></a>
+
+      A test can be tagged as belonging to one or more groups using the
+      <code class="literal">@group</code> annotation like this </p><pre class="programlisting">class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @group specification
+     */
+    public function testSomething()
+    {
+    }
+
+    /**
+     * @group regresssion
+     * @group bug2204
+     */
+    public function testSomethingElse()
+    {
+    }
+}</pre><p>
+    </p><p>
+      Tests can be selected for execution based on groups using the
+      <code class="literal">--group</code> and <code class="literal">--exclude-group</code> switches
+      of the command-line test runner or using the respective directives of the
+      XML configuration file.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.large"></a>@large</h2></div></div></div><p>
+      <a id="idp2514816" class="indexterm"></a>
+
+      The <code class="literal">@large</code> annotation is an alias for
+      <code class="literal">@group large</code>.
+    </p><p>
+      <a id="idp2516880" class="indexterm"></a>
+      <a id="idp2517584" class="indexterm"></a>
+
+      If the <code class="literal">PHP_Invoker</code> package is installed and strict
+      mode is enabled, a large test will fail if it takes longer than 60
+      seconds to execute. This timeout is configurable via the
+      <code class="literal">timeoutForLargeTests</code> attribute in the XML
+      configuration file.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.medium"></a>@medium</h2></div></div></div><p>
+      <a id="idp2521008" class="indexterm"></a>
+
+      The <code class="literal">@medium</code> annotation is an alias for
+      <code class="literal">@group medium</code>. A medium test must not depend on a test
+      marked as <code class="literal">@large</code>.
+    </p><p>
+      <a id="idp2523568" class="indexterm"></a>
+      <a id="idp2524272" class="indexterm"></a>
+
+      If the <code class="literal">PHP_Invoker</code> package is installed and strict
+      mode is enabled, a medium test will fail if it takes longer than 10
+      seconds to execute. This timeout is configurable via the
+      <code class="literal">timeoutForMediumTests</code> attribute in the XML
+      configuration file.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.preserveGlobalState"></a>@preserveGlobalState</h2></div></div></div><p>
+      <a id="idp2527712" class="indexterm"></a>
+      
+      When a test is run in a separate process, PHPUnit will
+      attempt to preserve the global state from the parent process by
+      serializing all globals in the parent process and unserializing them
+      in the child process. This can cause problems if the parent process
+      contains globals that are not serializable. To fix this, you can prevent
+      PHPUnit from preserving global state with the 
+      <code class="literal">@preserveGlobalState</code> annotation.
+      </p><pre class="programlisting">class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testInSeparateProcess()
+    {
+        // ...
+    }
+}</pre><p>
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.requires"></a>@requires</h2></div></div></div><p>
+      <a id="idp2531424" class="indexterm"></a>
+
+      The <code class="literal">@requires</code> annotation can be used skip tests when common
+      preconditions, like the PHP Version or installed extensions, are not met.
+    </p><p>
+      <a id="idp2533136" class="indexterm"></a>
+      A complete list of possibilities and examples can be found at
+      <a class="xref" href="incomplete-and-skipped-tests.html#incomplete-and-skipped-tests.requires.tables.api" title="Table 9.3. Possible @requires usages">Table 9.3</a>
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.runTestsInSeparateProcesses"></a>@runTestsInSeparateProcesses</h2></div></div></div><p>
+      <a id="idp2536160" class="indexterm"></a>
+      
+      Indicates that all tests in a test class should be run in a separate
+      PHP process. </p><pre class="programlisting">/**
+ * @runTestsInSeparateProcesses
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</pre><p>
+
+      <span class="strong"><strong>Note:</strong></span> By default, PHPUnit will
+      attempt to preserve the global state from the parent process by
+      serializing all globals in the parent process and unserializing them
+      in the child process. This can cause problems if the parent process
+      contains globals that are not serializable. See <a class="xref" href="appendixes.annotations.html#appendixes.annotations.preserveGlobalState" title="@preserveGlobalState">the section called “@preserveGlobalState”</a> for information
+      on how to fix this.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.runInSeparateProcess"></a>@runInSeparateProcess</h2></div></div></div><p>
+      <a id="idp2540640" class="indexterm"></a>
+      
+      Indicates that a test should be run in a separate PHP process.
+      </p><pre class="programlisting">class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @runInSeparateProcess
+     */
+    public function testInSeparateProcess()
+    {
+        // ...
+    }
+}</pre><p>
+
+      <span class="strong"><strong>Note:</strong></span> By default, PHPUnit will
+      attempt to preserve the global state from the parent process by
+      serializing all globals in the parent process and unserializing them
+      in the child process. This can cause problems if the parent process
+      contains globals that are not serializable. See <a class="xref" href="appendixes.annotations.html#appendixes.annotations.preserveGlobalState" title="@preserveGlobalState">the section called “@preserveGlobalState”</a> for information
+      on how to fix this.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.small"></a>@small</h2></div></div></div><p>
+      <a id="idp2545136" class="indexterm"></a>
+
+      The <code class="literal">@small</code> annotation is an alias for
+      <code class="literal">@group small</code>. A small test must not depend on a test
+      marked as <code class="literal">@medium</code> or <code class="literal">@large</code>.
+    </p><p>
+      <a id="idp2548144" class="indexterm"></a>
+      <a id="idp2548848" class="indexterm"></a>
+
+      If the <code class="literal">PHP_Invoker</code> package is installed and strict
+      mode is enabled, a small test will fail if it takes longer than 1
+      second to execute. This timeout is configurable via the
+      <code class="literal">timeoutForSmallTests</code> attribute in the XML
+      configuration file.
+    </p><div class="alert alert-info"><h3 class="title">Note</h3><p>
+        By default, all tests are considered to be small if they are not marked
+        as <code class="literal">@medium</code> or <code class="literal">@large</code>. Please note,
+        however, that <code class="literal">--group</code> and the related options will
+        only consider a test to be in the <code class="literal">small</code> group if it
+        is explicitly marked with the appropriate annotation.
+      </p></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.test"></a>@test</h2></div></div></div><p>
+      <a id="idp2555184" class="indexterm"></a>
+
+      As an alternative to prefixing your test method names with
+      <code class="literal">test</code>, you can use the <code class="literal">@test</code>
+      annotation in a method's DocBlock to mark it as a test method.
+      </p><pre class="programlisting">/**
+ * @test
+ */
+public function initialBalanceShouldBe0()
+{
+    $this-&gt;assertEquals(0, $this-&gt;ba-&gt;getBalance());
+}</pre><p>
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.testdox"></a>@testdox</h2></div></div></div><p>
+      <a id="idp2558960" class="indexterm"></a>
+      <a id="idp2559536" class="indexterm"></a>
+    </p><pre class="programlisting"></pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="appendixes.annotations.ticket"></a>@ticket</h2></div></div></div><p>
+      <a id="idp2562032" class="indexterm"></a>
+    </p><pre class="programlisting"></pre></div></div>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="appendixes.assertions.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="appendixes.configuration.html">Next</a></div>
+     </div>
+<div class="row"><div class="col-md-2"></div><div class="col-md-8"><div class="alert alert-info" style="text-align: center;">Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!</div></div><div class="col-md-2"></div></div>
+    </div>
+   </div>
+   <hr/>
+   <footer>
+    <p><a href="appendixes.copyright.html">Copyright</a> &copy; 2005-2014 <a href="http://sebastian-bergmann.de/">Sebastian Bergmann</a>.</p>
+   </footer>
+  </div>
+  <script src="js/jquery.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/highlight.pack.js"></script>
+  <script type="text/javascript">
+  $(document).ready(function() { $('pre.programlisting').each(function(i, e) {hljs.highlightBlock(e)}); });
+
+  var _paq = _paq || [];
+  _paq.push(["trackPageView"]);
+  _paq.push(["enableLinkTracking"]);
+
+  (function() {
+    var u=(("https:" == document.location.protocol) ? "https" : "http") + "://piwik.sebastian-bergmann.de/";
+    _paq.push(["setTrackerUrl", u+"piwik.php"]);
+    _paq.push(["setSiteId", "2"]);
+    var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
+    g.defer=true; g.async=true; g.src=u+"piwik.js"; s.parentNode.insertBefore(g,s);
+  })();
+  </script>
+ </body>
+</html>

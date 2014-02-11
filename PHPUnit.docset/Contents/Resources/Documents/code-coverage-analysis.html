@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8">
+  <title>PHPUnit Manual &#8211; Chapter 14. Code Coverage Analysis</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/highlight.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
+  <!--[if lt IE 9]><script src="js/html5.js"></script><![endif]-->
+ </head>
+ <body>
+  
+  <div class="container">
+   <div class="row">
+    <div style='padding: 1.5em'>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="behaviour-driven-development.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="other-uses-for-tests.html">Next</a></div>
+     </div>
+<div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="code-coverage-analysis"></a>Chapter 14. Code Coverage Analysis</h1></div></div></div><div class="blockquote"><table border="0" class="blockquote" style="width: 100%; cellspacing: 0; cellpadding: 0;" summary="Block quote"><tr><td width="10%" valign="top"> </td><td width="80%" valign="top"><p>
+      The beauty of testing is found not in the effort but in the efficiency.
+    </p><p>
+      Knowing what should be tested is beautiful, and knowing what is being
+      tested is beautiful.
+    </p></td><td width="10%" valign="top"> </td></tr><tr><td width="10%" valign="top"> </td><td colspan="2" align="right" valign="top">--<span class="attribution">Murali Nandigama</span></td></tr></table></div><p>
+    <a id="idp698736" class="indexterm"></a>
+
+    In this chapter you will learn all about PHPUnit's code coverage
+    functionality that provides an insight into what parts of the production
+    code are executed when the tests are run. It helps answering questions such
+    as:
+  </p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+        How do you find code that is not yet tested -- or, in other words, not
+        yet <span class="emphasis"><em>covered</em></span> by a test?
+      </p></li><li class="listitem"><p>How do you measure testing completeness?</p></li></ul></div><p>
+    An example of what code coverage statistics can mean is that if there is a
+    method with 100 lines of code, and only 75 of these lines are actually
+    executed when tests are being run, then the method is considered to have a
+    code coverage of 75 percent.
+  </p><p>
+    <a id="idp703424" class="indexterm"></a>
+
+    PHPUnit's code coverage functionality makes use of the
+    <a class="ulink" href="http://github.com/sebastianbergmann/php-code-coverage" target="_top">PHP_CodeCoverage</a>
+    component, which in turn leverages the statement coverage functionality
+    provided by the <a class="ulink" href="http://www.xdebug.org/" target="_top">Xdebug</a>
+    extension for PHP.
+  </p><div class="alert alert-info"><h3 class="title">Note</h3><p>
+      Xdebug is not distributed as part of PHPUnit. If you receive a notice
+      while running tests that the Xdebug extension is not loaded, it means
+      that Xdebug is either not installed or not configured properly. Before
+      you can use the code coverage analysis features in PHPUnit, you should
+      read <a class="ulink" href="http://xdebug.org/docs/install" target="_top">the Xdebug installation guide</a>.
+    </p></div><p>
+    Let us generate a code coverage report for the <code class="literal">BankAccount</code>
+    class from <a class="xref" href="test-driven-development.html#test-driven-development.bankaccount-example.examples.BankAccount2.php" title="Example 12.3: The complete BankAccount class">Example 12.3</a>.
+  </p><pre class="screen"><strong class="userinput"><code>phpunit --coverage-html ./report BankAccountTest</code></strong>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+...
+
+Time: 0 seconds
+
+OK (3 tests, 3 assertions)
+
+Generating report, this may take a moment.</pre><p>
+    <a class="xref" href="code-coverage-analysis.html#code-coverage-analysis.figures.Code_Coverage.png" title="Figure 14.1. Code Coverage for setBalance()">Figure 14.1</a> shows
+    an excerpt from a Code Coverage report. Lines of code that were executed
+    while running the tests are highlighted green, lines of code that are
+    executable but were not executed are highlighted red, and "dead code" is
+    highlighted grey. The number left to the actual line of code indicates
+    how many tests cover that line.
+  </p><div class="figure"><a id="code-coverage-analysis.figures.Code_Coverage.png"></a><p class="title"><strong>Figure 14.1. Code Coverage for setBalance()</strong></p><div class="figure-contents"><div><img src="http://phpunit.de/manual/current/en/figures/Code_Coverage.png" alt="Code Coverage for setBalance()"></img></div></div></div><br class="figure-break"></br><p>
+    Clicking on the line number of a covered line will open a panel (see
+    <a class="xref" href="code-coverage-analysis.html#code-coverage-analysis.figures.Code_Coverage2.png" title="Figure 14.2. Panel with information on covering tests">Figure 14.2</a>) that
+    shows the test cases that cover this line.
+  </p><div class="figure"><a id="code-coverage-analysis.figures.Code_Coverage2.png"></a><p class="title"><strong>Figure 14.2. Panel with information on covering tests</strong></p><div class="figure-contents"><div><img src="http://phpunit.de/manual/current/en/figures/Code_Coverage2.png" alt="Panel with information on covering tests"></img></div></div></div><br class="figure-break"></br><p>
+    The code coverage report for our <code class="literal">BankAccount</code> example
+    shows that we do not have any tests yet that call the
+    <code class="literal">setBalance()</code>, <code class="literal">depositMoney()</code>, and
+    <code class="literal">withdrawMoney()</code> methods with legal values.
+    <a class="xref" href="code-coverage-analysis.html#code-coverage-analysis.examples.BankAccountTest.php" title="Example 14.1: Test missing to achieve complete code coverage">Example 14.1</a>
+    shows a test that can be added to the <code class="literal">BankAccountTest</code>
+    test case class to completely cover the <code class="literal">BankAccount</code>
+    class.
+  </p><div class="example"><a id="code-coverage-analysis.examples.BankAccountTest.php"></a><p class="title"><strong>Example 14.1: Test missing to achieve complete code coverage</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+require_once 'BankAccount.php';
+
+class BankAccountTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+
+    public function testDepositWithdrawMoney()
+    {
+        $this-&gt;assertEquals(0, $this-&gt;ba-&gt;getBalance());
+        $this-&gt;ba-&gt;depositMoney(1);
+        $this-&gt;assertEquals(1, $this-&gt;ba-&gt;getBalance());
+        $this-&gt;ba-&gt;withdrawMoney(1);
+        $this-&gt;assertEquals(0, $this-&gt;ba-&gt;getBalance());
+    }
+}
+?&gt;</pre></div></div><br class="example-break"></br><p>
+    <a class="xref" href="code-coverage-analysis.html#code-coverage-analysis.figures.Code_Coverage3.png" title="Figure 14.3. Code Coverage for setBalance() with additional test">Figure 14.3</a> shows
+    the code coverage of the <code class="literal">setBalance()</code> method with the
+    additional test.
+  </p><div class="figure"><a id="code-coverage-analysis.figures.Code_Coverage3.png"></a><p class="title"><strong>Figure 14.3. Code Coverage for <code class="literal">setBalance()</code> with additional test</strong></p><div class="figure-contents"><div><img src="http://phpunit.de/manual/current/en/figures/Code_Coverage3.png" alt="Code Coverage for setBalance() with additional test"></img></div></div></div><br class="figure-break"></br><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="code-coverage-analysis.specifying-covered-methods"></a>Specifying Covered Methods</h2></div></div></div><p>
+      <a id="idp1862992" class="indexterm"></a>
+      <a id="idp1863568" class="indexterm"></a>
+
+      The <code class="literal">@covers</code> annotation (see
+      <a class="xref" href="appendixes.annotations.html#appendixes.annotations.covers.tables.annotations" title="Table B.1. Annotations for specifying which methods are covered by a test">Table B.1</a>) can be
+      used in the test code to specify which method(s) a test method wants to
+      test. If provided, only the code coverage information for the specified
+      method(s) will be considered.
+      <a class="xref" href="code-coverage-analysis.html#code-coverage-analysis.specifying-covered-methods.examples.BankAccountTest.php" title="Example 14.2: Tests that specify which method they want to cover">Example 14.2</a>
+      shows an example.
+    </p><div class="example"><a id="code-coverage-analysis.specifying-covered-methods.examples.BankAccountTest.php"></a><p class="title"><strong>Example 14.2: Tests that specify which method they want to cover</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+require_once 'BankAccount.php';
+
+class BankAccountTest extends PHPUnit_Framework_TestCase
+{
+    protected $ba;
+
+    protected function setUp()
+    {
+        $this-&gt;ba = new BankAccount;
+    }
+
+    /**
+     * @covers BankAccount::getBalance
+     */
+    public function testBalanceIsInitiallyZero()
+    {
+        $this-&gt;assertEquals(0, $this-&gt;ba-&gt;getBalance());
+    }
+
+    /**
+     * @covers BankAccount::withdrawMoney
+     */
+    public function testBalanceCannotBecomeNegative()
+    {
+        try {
+            $this-&gt;ba-&gt;withdrawMoney(1);
+        }
+
+        catch (BankAccountException $e) {
+            $this-&gt;assertEquals(0, $this-&gt;ba-&gt;getBalance());
+
+            return;
+        }
+
+        $this-&gt;fail();
+    }
+
+    /**
+     * @covers BankAccount::depositMoney
+     */
+    public function testBalanceCannotBecomeNegative2()
+    {
+        try {
+            $this-&gt;ba-&gt;depositMoney(-1);
+        }
+
+        catch (BankAccountException $e) {
+            $this-&gt;assertEquals(0, $this-&gt;ba-&gt;getBalance());
+
+            return;
+        }
+
+        $this-&gt;fail();
+    }
+
+    /**
+     * @covers BankAccount::getBalance
+     * @covers BankAccount::depositMoney
+     * @covers BankAccount::withdrawMoney
+     */
+
+    public function testDepositWithdrawMoney()
+    {
+        $this-&gt;assertEquals(0, $this-&gt;ba-&gt;getBalance());
+        $this-&gt;ba-&gt;depositMoney(1);
+        $this-&gt;assertEquals(1, $this-&gt;ba-&gt;getBalance());
+        $this-&gt;ba-&gt;withdrawMoney(1);
+        $this-&gt;assertEquals(0, $this-&gt;ba-&gt;getBalance());
+    }
+}
+?&gt;</pre></div></div><br class="example-break"></br><p>
+      <a id="idp1868048" class="indexterm"></a>
+      <a id="idp1890256" class="indexterm"></a>
+
+      It is also possible to specify that a test should not cover 
+      <span class="emphasis"><em>any</em></span> method by using the 
+      <code class="literal">@coversNothing</code> annotation (see
+      <a class="xref" href="appendixes.annotations.html#appendixes.annotations.coversNothing" title="@coversNothing">the section called “@coversNothing”</a>). This can be
+      helpful when writing integration tests to make sure you only 
+      generate code coverage with unit tests.
+    </p><div class="example"><a id="code-coverage-analysis.specifying-covered-methods.examples.GuestbookIntegrationTest.php"></a><p class="title"><strong>Example 14.3: A test that specifies that no method should be covered</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+class GuestbookIntegrationTest extends PHPUnit_Extensions_Database_TestCase
+{
+    /**
+     * @coversNothing
+     */
+    public function testAddEntry()
+    {
+        $guestbook = new Guestbook();
+        $guestbook-&gt;addEntry("suzy", "Hello world!");
+
+        $queryTable = $this-&gt;getConnection()-&gt;createQueryTable(
+            'guestbook', 'SELECT * FROM guestbook'
+        );
+        $expectedTable = $this-&gt;createFlatXmlDataSet("expectedBook.xml")
+                              -&gt;getTable("guestbook");
+        $this-&gt;assertTablesEqual($expectedTable, $queryTable);
+    }
+}
+?&gt;
+      </pre></div></div><br class="example-break"></br></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="code-coverage-analysis.ignoring-code-blocks"></a>Ignoring Code Blocks</h2></div></div></div><p>
+      <a id="idp1896368" class="indexterm"></a>
+      <a id="idp1896944" class="indexterm"></a>
+      <a id="idp1897520" class="indexterm"></a>
+      <a id="idp1898112" class="indexterm"></a>
+
+      Sometimes you have blocks of code that you cannot test and that you may
+      want to ignore during code coverage analysis. PHPUnit lets you do this
+      using the <code class="literal">@codeCoverageIgnore</code>,
+      <code class="literal">@codeCoverageIgnoreStart</code> and
+      <code class="literal">@codeCoverageIgnoreEnd</code> annotations as shown in
+      <a class="xref" href="code-coverage-analysis.html#code-coverage-analysis.ignoring-code-blocks.examples.Sample.php" title="Example 14.4: Using the @codeCoverageIgnore, @codeCoverageIgnoreStart and @codeCoverageIgnoreEnd annotations">Example 14.4</a>.
+    </p><div class="example"><a id="code-coverage-analysis.ignoring-code-blocks.examples.Sample.php"></a><p class="title"><strong>Example 14.4: Using the <code class="literal">@codeCoverageIgnore</code>, <code class="literal">@codeCoverageIgnoreStart</code> and <code class="literal">@codeCoverageIgnoreEnd</code> annotations</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+/**
+ * @codeCoverageIgnore
+ */
+class Foo
+{
+    public function bar()
+    {
+    }
+}
+
+class Bar
+{
+    /**
+     * @codeCoverageIgnore
+     */
+    public function foo()
+    {
+    }
+}
+
+if (FALSE) {
+    // @codeCoverageIgnoreStart
+    print '*';
+    // @codeCoverageIgnoreEnd
+}
+?&gt;</pre></div></div><br class="example-break"></br><p>
+      The ignored lines of code (marked as ignored using the annotations)
+      are counted as executed (if they are executable) and will not be
+      highlighted.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="code-coverage-analysis.including-excluding-files"></a>Including and Excluding Files</h2></div></div></div><p>
+      <a id="idp1906400" class="indexterm"></a>
+      <a id="idp1906976" class="indexterm"></a>
+      <a id="idp1907552" class="indexterm"></a>
+
+      By default, all sourcecode files that contain at least one line of code
+      that has been executed (and only these files) are included in the report.
+      The sourcecode files that are included in the report can be filtered by
+      using a blacklist or a whitelist approach.
+    </p><p>
+      The blacklist is pre-filled with all sourcecode files of PHPUnit itself
+      as well as the tests. When the whitelist is empty (default), blacklisting
+      is used. When the whitelist is not empty, whitelisting is used. Each file
+      on the whitelist is added to the code coverage report regardless of
+      whether or not it was executed. All lines of such a file, including those
+      that are not executable, are counted as not executed.
+    </p><p>
+      When you set <code class="literal">processUncoveredFilesFromWhitelist="true"</code>
+      in your PHPUnit configuration (see <a class="xref" href="appendixes.configuration.html#appendixes.configuration.blacklist-whitelist" title="Including and Excluding Files for Code Coverage">the section called “Including and Excluding Files for Code Coverage”</a>) then these files
+      will be included by PHP_CodeCoverage to properly calculate the number of
+      executable lines.
+    </p><div class="alert alert-info"><h3 class="title">Note</h3><p>
+        Please note that the loading of sourcecode files that is performed when
+        <code class="literal">processUncoveredFilesFromWhitelist="true"</code> is set can
+        cause problems when a sourcecode file contains code outside the scope of
+        a class or function, for instance.
+      </p></div><p>
+      PHPUnit's XML configuration file (see <a class="xref" href="appendixes.configuration.html#appendixes.configuration.blacklist-whitelist" title="Including and Excluding Files for Code Coverage">the section called “Including and Excluding Files for Code Coverage”</a>)
+      can be used to control the blacklist and the whitelist. Using a whitelist
+      is the recommended best practice to control the list of files included in
+      the code coverage report.
+    </p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="code-coverage-analysis.edge-cases"></a>Edge cases</h2></div></div></div><p>
+      For the most part it can safely be said that PHPUnit offers you "line
+      based" code coverage information but due to how that information is
+      collected there are some noteworthy edge cases.
+    </p><div class="example"><a id="code-coverage-analysis.edge-cases.examples.Sample.php"></a><p class="title"><strong>Example 14.5: </strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+// Because it is "line based" and not statement base coverage
+// one line will always have one coverage status
+if(false) this_function_call_shows_up_as_covered();
+
+// Due to how code coverage works internally these two lines are special.
+// This line will show up as non executable
+if(false)
+    // This line will show up as covered because it is actually the 
+    // coverage of the if statement in the line above that gets shown here!
+    will_also_show_up_as_coveraged();
+
+// To avoid this it is necessary that braces are used
+if(false) {
+    this_call_will_never_show_up_as_covered();
+}
+?&gt;</pre></div></div><br class="example-break"></br></div></div>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="behaviour-driven-development.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="other-uses-for-tests.html">Next</a></div>
+     </div>
+<div class="row"><div class="col-md-2"></div><div class="col-md-8"><div class="alert alert-info" style="text-align: center;">Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!</div></div><div class="col-md-2"></div></div>
+    </div>
+   </div>
+   <hr/>
+   <footer>
+    <p><a href="appendixes.copyright.html">Copyright</a> &copy; 2005-2014 <a href="http://sebastian-bergmann.de/">Sebastian Bergmann</a>.</p>
+   </footer>
+  </div>
+  <script src="js/jquery.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/highlight.pack.js"></script>
+  <script type="text/javascript">
+  $(document).ready(function() { $('pre.programlisting').each(function(i, e) {hljs.highlightBlock(e)}); });
+
+  var _paq = _paq || [];
+  _paq.push(["trackPageView"]);
+  _paq.push(["enableLinkTracking"]);
+
+  (function() {
+    var u=(("https:" == document.location.protocol) ? "https" : "http") + "://piwik.sebastian-bergmann.de/";
+    _paq.push(["setTrackerUrl", u+"piwik.php"]);
+    _paq.push(["setSiteId", "2"]);
+    var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
+    g.defer=true; g.async=true; g.src=u+"piwik.js"; s.parentNode.insertBefore(g,s);
+  })();
+  </script>
+ </body>
+</html>

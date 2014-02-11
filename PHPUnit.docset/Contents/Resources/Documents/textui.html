@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8">
+  <title>PHPUnit Manual &#8211; Chapter 5. The Command-Line Test Runner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/highlight.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
+  <!--[if lt IE 9]><script src="js/html5.js"></script><![endif]-->
+ </head>
+ <body>
+  
+  <div class="container">
+   <div class="row">
+    <div style='padding: 1.5em'>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="writing-tests-for-phpunit.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="fixtures.html">Next</a></div>
+     </div>
+<div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="textui"></a>Chapter 5. The Command-Line Test Runner</h1></div></div></div><p>
+    The PHPUnit command-line test runner can be invoked through the
+    <code class="filename">phpunit</code> command. The following code shows how to run
+    tests with the PHPUnit command-line test runner:
+  </p><pre class="screen"><strong class="userinput"><code>phpunit ArrayTest</code></strong>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+..
+
+Time: 0 seconds
+
+
+OK (2 tests, 2 assertions)</pre><p>
+    When invoked as shown above, the PHPUnit command-line test runner will look
+    for a <code class="filename">ArrayTest.php</code> sourcefile in the current working
+    directory, load it, and expect to find a <code class="literal">ArrayTest</code> test
+    case class. It will then execute the tests of that class.
+  </p><p>
+    For each test run, the PHPUnit command-line tool prints one character to
+    indicate progress:
+  </p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">.</code></span></dt><dd><p>
+          Printed when the test succeeds.
+        </p></dd><dt><span class="term"><code class="literal">F</code></span></dt><dd><p>
+          Printed when an assertion fails while running the test method.
+        </p></dd><dt><span class="term"><code class="literal">E</code></span></dt><dd><p>
+          Printed when an error occurs while running the test method.
+        </p></dd><dt><span class="term"><code class="literal">S</code></span></dt><dd><p>
+          Printed when the test has been skipped (see
+          <a class="xref" href="incomplete-and-skipped-tests.html" title="Chapter 9. Incomplete and Skipped Tests">Chapter 9</a>).
+        </p></dd><dt><span class="term"><code class="literal">I</code></span></dt><dd><p>
+          Printed when the test is marked as being incomplete or not yet
+          implemented (see <a class="xref" href="incomplete-and-skipped-tests.html" title="Chapter 9. Incomplete and Skipped Tests">Chapter 9</a>).
+        </p></dd></dl></div><p>
+    <a id="idp765408" class="indexterm"></a>
+    <a id="idp765984" class="indexterm"></a>
+
+    PHPUnit distinguishes between <span class="emphasis"><em>failures</em></span> and
+    <span class="emphasis"><em>errors</em></span>. A failure is a violated PHPUnit
+    assertion such as a failing <code class="literal">assertEquals()</code> call.
+    An error is an unexpected exception or a PHP error. Sometimes
+    this distinction proves useful since errors tend to be easier to fix
+    than failures. If you have a big list of problems, it is best to
+    tackle the errors first and see if you have any failures left when
+    they are all fixed.
+  </p><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="textui.clioptions"></a>Command-Line switches</h2></div></div></div><p>
+      Let's take a look at the command-line test runner's switches in
+      the following code:
+    </p><pre class="screen"><strong class="userinput"><code>phpunit --help</code></strong>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+Usage: phpunit [switches] UnitTest [UnitTest.php]
+       phpunit [switches] &lt;directory&gt;
+
+  --log-junit &lt;file&gt;        Log test execution in JUnit XML format to file.
+  --log-tap &lt;file&gt;          Log test execution in TAP format to file.
+  --log-json &lt;file&gt;         Log test execution in JSON format.
+
+  --coverage-clover &lt;file&gt;  Generate code coverage report in Clover XML format.
+  --coverage-html &lt;dir&gt;     Generate code coverage report in HTML format.
+  --coverage-php &lt;file&gt;     Serialize PHP_CodeCoverage object to file.
+  --coverage-text=&lt;file&gt;    Generate code coverage report in text format.
+                            Default to writing to the standard output.
+
+  --testdox-html &lt;file&gt;     Write agile documentation in HTML format to file.
+  --testdox-text &lt;file&gt;     Write agile documentation in Text format to file.
+
+  --filter &lt;pattern&gt;        Filter which tests to run.
+  --testsuite &lt;pattern&gt;     Filter which testsuite to run.
+  --group ...               Only runs tests from the specified group(s).
+  --exclude-group ...       Exclude tests from the specified group(s).
+  --list-groups             List available test groups.
+  --test-suffix ...         Only search for test in files with specified
+                            suffix(es). Default: Test.php,.phpt
+
+  --loader &lt;loader&gt;         TestSuiteLoader implementation to use.
+  --printer &lt;printer&gt;       TestSuiteListener implementation to use.
+  --repeat &lt;times&gt;          Runs the test(s) repeatedly.
+
+  --tap                     Report test execution progress in TAP format.
+  --testdox                 Report test execution progress in TestDox format.
+
+  --colors                  Use colors in output.
+  --stderr                  Write to STDERR instead of STDOUT.
+  --stop-on-error           Stop execution upon first error.
+  --stop-on-failure         Stop execution upon first error or failure.
+  --stop-on-skipped         Stop execution upon first skipped test.
+  --stop-on-incomplete      Stop execution upon first incomplete test.
+  --strict                  Run tests in strict mode.
+  -v|--verbose              Output more verbose information.
+  --debug                   Display debugging information during test execution.
+
+  --process-isolation       Run each test in a separate PHP process.
+  --no-globals-backup       Do not backup and restore $GLOBALS for each test.
+  --static-backup           Backup and restore static attributes for each test.
+
+  --bootstrap &lt;file&gt;        A "bootstrap" PHP file that is run before the tests.
+  -c|--configuration &lt;file&gt; Read configuration from XML file.
+  --no-configuration        Ignore default configuration file (phpunit.xml).
+  --include-path &lt;path(s)&gt;  Prepend PHP's include_path with given path(s).
+  -d key[=value]            Sets a php.ini value.
+
+  -h|--help                 Prints this usage information.
+  --version                 Prints the version and exits.</pre><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">phpunit UnitTest</code></span></dt><dd><p>
+            Runs the tests that are provided by the class
+            <code class="literal">UnitTest</code>. This class is expected to be declared
+            in the <code class="filename">UnitTest.php</code> sourcefile.
+          </p><p>
+            <code class="literal">UnitTest</code> must be either a class that inherits
+            from <code class="literal">PHPUnit_Framework_TestCase</code> or a class that
+            provides a <code class="literal">public static suite()</code> method which
+            returns an <code class="literal">PHPUnit_Framework_Test</code> object, for
+            example an instance of the
+            <code class="literal">PHPUnit_Framework_TestSuite</code> class.
+          </p></dd><dt><span class="term"><code class="literal">phpunit UnitTest UnitTest.php</code></span></dt><dd><p>
+            Runs the tests that are provided by the class
+            <code class="literal">UnitTest</code>. This class is expected to be declared
+            in the specified sourcefile.
+          </p></dd><dt><span class="term"><code class="literal">--log-junit</code></span></dt><dd><p>
+            Generates a logfile in JUnit XML format for the tests run.
+            See <a class="xref" href="logging.html" title="Chapter 18. Logging">Chapter 18</a> for more details.
+          </p></dd><dt><span class="term"><code class="literal">--log-tap</code></span></dt><dd><p>
+            Generates a logfile using the <a class="ulink" href="http://testanything.org/" target="_top">Test Anything Protocol (TAP)</a>
+            format for the tests run. See <a class="xref" href="logging.html" title="Chapter 18. Logging">Chapter 18</a> for more
+            details.
+          </p></dd><dt><span class="term"><code class="literal">--log-json</code></span></dt><dd><p>
+            Generates a logfile using the
+            <a class="ulink" href="http://www.json.org/" target="_top">JSON</a> format.
+            See <a class="xref" href="logging.html" title="Chapter 18. Logging">Chapter 18</a> for more details.
+          </p></dd><dt><span class="term"><code class="literal">--coverage-html</code></span></dt><dd><p>
+            Generates a code coverage report in HTML format. See
+            <a class="xref" href="code-coverage-analysis.html" title="Chapter 14. Code Coverage Analysis">Chapter 14</a> for more details.
+          </p><p>
+            Please note that this functionality is only available when the
+            tokenizer and Xdebug extensions are installed.
+          </p></dd><dt><span class="term"><code class="literal">--coverage-clover</code></span></dt><dd><p>
+            Generates a logfile in XML format with the code coverage information
+            for the tests run. See <a class="xref" href="logging.html" title="Chapter 18. Logging">Chapter 18</a> for more details.
+          </p><p>
+            Please note that this functionality is only available when the
+            tokenizer and Xdebug extensions are installed.
+          </p></dd><dt><span class="term"><code class="literal">--coverage-php</code></span></dt><dd><p>
+            Generates a serialized PHP_CodeCoverage object with the
+            code coverage information.
+          </p><p>
+            Please note that this functionality is only available when the
+            tokenizer and Xdebug extensions are installed.
+          </p></dd><dt><span class="term"><code class="literal">--coverage-text</code></span></dt><dd><p>
+            Generates a logfile or command-line output in human readable format
+            with the code coverage information for the tests run.
+            See <a class="xref" href="logging.html" title="Chapter 18. Logging">Chapter 18</a> for more details.
+          </p><p>
+            Please note that this functionality is only available when the
+            tokenizer and Xdebug extensions are installed.
+          </p></dd><dt><span class="term"><code class="literal">--testdox-html</code> and <code class="literal">--testdox-text</code></span></dt><dd><p>
+            Generates agile documentation in HTML or plain text format for the
+            tests that are run. See <a class="xref" href="other-uses-for-tests.html" title="Chapter 15. Other Uses for Tests">Chapter 15</a> for
+            more details.
+          </p></dd><dt><span class="term"><code class="literal">--filter</code></span></dt><dd><p>
+            Only runs tests whose name matches the given regular expression
+            pattern. If the pattern is not enclosed in delimiters, PHPUnit
+            will enclose the pattern in <code class="literal">/</code> delimiters.
+          </p><p>
+            The test names to match will be in one of the following formats:
+          </p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">TestNamespace\TestCaseClass::testMethod</code></span></dt><dd><p>
+                  The default test name format is the equivalent of using
+                  the <code class="literal">__METHOD__</code> magic constant inside
+                  the test method.
+                </p></dd><dt><span class="term"><code class="literal">TestNamespace\TestCaseClass::testMethod with data set #0</code></span></dt><dd><p>
+                  When a test has a data provider, each iteration of the
+                  data gets the current index appended to the end of the
+                  default test name.
+                </p></dd><dt><span class="term"><code class="literal">TestNamespace\TestCaseClass::testMethod with data set "my named data"</code></span></dt><dd><p>
+                  When a test has a data provider that uses named sets, each
+                  iteration of the data gets the current name appended to the
+                  end of the default test name. See
+                  <a class="xref" href="textui.html#textui.examples.TestCaseClass.php" title="Example 5.1: Named data sets">Example 5.1</a> for an
+                  example of named data sets.
+                </p><div class="example"><a id="textui.examples.TestCaseClass.php"></a><p class="title"><strong>Example 5.1: Named data sets</strong></p><div class="example-contents"><pre class="programlisting">&lt;?php
+namespace TestNamespace;
+
+class TestCaseClass extends \PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider provider
+     */
+    public function testMethod($data)
+    {
+        $this-&gt;assertTrue($data);
+    }
+
+    public function provider()
+    {
+        return array(
+           'my named data' =&gt; array(true),
+           'my data'       =&gt; array(true)
+        );
+    }
+}
+?&gt;</pre></div></div><br class="example-break"></br></dd><dt><span class="term"><code class="literal">/path/to/my/test.phpt</code></span></dt><dd><p>
+                  The test name for a PHPT test is the filesystem path.
+                </p></dd></dl></div><p>
+            See <a class="xref" href="textui.html#textui.examples.filter-patterns" title="Example 5.2: Filter pattern examples">Example 5.2</a> for examples
+            of valid filter patterns.
+          </p><div class="example"><a id="textui.examples.filter-patterns"></a><p class="title"><strong>Example 5.2: Filter pattern examples</strong></p><div class="example-contents"><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p><code class="literal">--filter 'TestNamespace\\TestCaseClass::testMethod'</code></p></li><li class="listitem"><p><code class="literal">--filter 'TestNamespace\\TestCaseClass'</code></p></li><li class="listitem"><p><code class="literal">--filter TestNamespace</code></p></li><li class="listitem"><p><code class="literal">--filter TestCaseClass</code></p></li><li class="listitem"><p><code class="literal">--filter testMethod</code></p></li><li class="listitem"><p><code class="literal">--filter '/::testMethod .*"my named data"/'</code></p></li><li class="listitem"><p><code class="literal">--filter '/::testMethod .*#5$/'</code></p></li><li class="listitem"><p><code class="literal">--filter '/::testMethod .*#(5|6|7)$/'</code></p></li></ul></div></div></div><br class="example-break"></br></dd><dt><span class="term"><code class="literal">--testsuite</code></span></dt><dd><p>
+            Only runs the test suite whose name matches the given pattern.
+          </p></dd><dt><span class="term"><code class="literal">--group</code></span></dt><dd><p>
+            Only runs tests from the specified group(s). A test can be tagged as
+            belonging to a group using the <code class="literal">@group</code> annotation.
+          </p><p>
+            The <code class="literal">@author</code> annotation is an alias for
+            <code class="literal">@group</code> allowing to filter tests based on their
+            authors.
+          </p></dd><dt><span class="term"><code class="literal">--exclude-group</code></span></dt><dd><p>
+            Exclude tests from the specified group(s). A test can be tagged as
+            belonging to a group using the <code class="literal">@group</code> annotation.
+          </p></dd><dt><span class="term"><code class="literal">--list-groups</code></span></dt><dd><p>
+            List available test groups.
+          </p></dd><dt><span class="term"><code class="literal">--test-suffix</code></span></dt><dd><p>
+            Only search for test files with specified suffix(es).
+          </p></dd><dt><span class="term"><code class="literal">--loader</code></span></dt><dd><p>
+            Specifies the <code class="literal">PHPUnit_Runner_TestSuiteLoader</code>
+            implementation to use.
+          </p><p>
+            The standard test suite loader will look for the sourcefile in the
+            current working directory and in each directory that is specified in
+            PHP's <code class="literal">include_path</code> configuration directive.
+            Following the PEAR Naming Conventions, a class name such as
+            <code class="literal">Project_Package_Class</code> is mapped to the
+            sourcefile name <code class="filename">Project/Package/Class.php</code>.
+          </p></dd><dt><span class="term"><code class="literal">--printer</code></span></dt><dd><p>
+            Specifies the result printer to use. The printer class must extend
+            <code class="literal">PHPUnit_Util_Printer</code> and implement the
+            <code class="literal">PHPUnit_Framework_TestListener</code> interface.
+          </p></dd><dt><span class="term"><code class="literal">--repeat</code></span></dt><dd><p>
+            Repeatedly runs the test(s) the specified number of times.
+          </p></dd><dt><span class="term"><code class="literal">--tap</code></span></dt><dd><p>
+            Reports the test progress using the <a class="ulink" href="http://testanything.org/" target="_top">Test Anything Protocol (TAP)</a>.
+            See <a class="xref" href="logging.html" title="Chapter 18. Logging">Chapter 18</a> for more details.
+          </p></dd><dt><span class="term"><code class="literal">--testdox</code></span></dt><dd><p>
+            Reports the test progress as agile documentation. See
+            <a class="xref" href="other-uses-for-tests.html" title="Chapter 15. Other Uses for Tests">Chapter 15</a> for more details.
+          </p></dd><dt><span class="term"><code class="literal">--colors</code></span></dt><dd><p>
+            Use colors in output.
+          </p></dd><dt><span class="term"><code class="literal">--stderr</code></span></dt><dd><p>
+            Optionally print to <code class="literal">STDERR</code> instead of
+            <code class="literal">STDOUT</code>.
+          </p></dd><dt><span class="term"><code class="literal">--stop-on-error</code></span></dt><dd><p>
+            Stop execution upon first error.
+          </p></dd><dt><span class="term"><code class="literal">--stop-on-failure</code></span></dt><dd><p>
+            Stop execution upon first error or failure.
+          </p></dd><dt><span class="term"><code class="literal">--stop-on-skipped</code></span></dt><dd><p>
+            Stop execution upon first skipped test.
+          </p></dd><dt><span class="term"><code class="literal">--stop-on-incomplete</code></span></dt><dd><p>
+            Stop execution upon first incomplete test.
+          </p></dd><dt><span class="term"><code class="literal">--strict</code></span></dt><dd><p>
+            Run tests in strict mode. When strict mode is enabled:
+          </p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+                Tests that emit output will fail.
+              </p></li><li class="listitem"><p>
+                Tests with no assertions will fail and will not generate code
+                coverage information.
+              </p></li><li class="listitem"><p>
+                If the <code class="literal">PHP_Invoker</code> package is installed:
+              </p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; "><li class="listitem"><p>
+                    A test marked as <code class="literal">@large</code> will fail if it
+                    takes longer than 60 seconds to execute. This timeout is
+                    configurable via the
+                    <code class="literal">timeoutForLargeTests</code> attribute in the
+                    XML configuration file.
+                  </p></li><li class="listitem"><p>
+                    A test marked as <code class="literal">@medium</code> will fail if it
+                    takes longer than 10 seconds to execute. This timeout is
+                    configurable via the
+                    <code class="literal">timeoutForMediumTests</code> attribute in the
+                    XML configuration file.
+                  </p></li><li class="listitem"><p>
+                    A test not marked as <code class="literal">@medium</code> or
+                    <code class="literal">@large</code> will fail if it takes longer than
+                    1 second to execute. This timeout is configurable via the
+                    <code class="literal">timeoutForSmallTests</code> attribute in the
+                    XML configuration file.
+                  </p></li></ul></div></li></ul></div></dd><dt><span class="term"><code class="literal">--verbose</code></span></dt><dd><p>
+            Output more verbose information, for instance the names of tests
+            that were incomplete or have been skipped.
+          </p></dd><dt><span class="term"><code class="literal">--process-isolation</code></span></dt><dd><p>
+            Run each test in a separate PHP process.
+          </p></dd><dt><span class="term"><code class="literal">--no-globals-backup</code></span></dt><dd><p>
+            Do not backup and restore $GLOBALS. See <a class="xref" href="fixtures.html#fixtures.global-state" title="Global State">the section called “Global State”</a>
+            for more details.
+          </p></dd><dt><span class="term"><code class="literal">--static-backup</code></span></dt><dd><p>
+            Backup and restore static attributes of user-defined classes.
+            See <a class="xref" href="fixtures.html#fixtures.global-state" title="Global State">the section called “Global State”</a> for more details.
+          </p></dd><dt><span class="term"><code class="literal">--bootstrap</code></span></dt><dd><p>
+            A "bootstrap" PHP file that is run before the tests.
+          </p></dd><dt><span class="term"><code class="literal">--configuration</code>, </span><span class="term"><code class="literal">-c</code></span></dt><dd><p>
+            Read configuration from XML file.
+            See <a class="xref" href="appendixes.configuration.html" title="Appendix C. The XML Configuration File">Appendix C</a> for more details.
+          </p><p>
+            If <code class="filename">phpunit.xml</code> or
+            <code class="filename">phpunit.xml.dist</code> (in that order) exist in the
+            current working directory and <code class="literal">--configuration</code> is
+            <span class="emphasis"><em>not</em></span> used, the configuration will be automatically
+            read from that file.
+          </p></dd><dt><span class="term"><code class="literal">--no-configuration</code></span></dt><dd><p>
+            Ignore <code class="filename">phpunit.xml</code> and
+            <code class="filename">phpunit.xml.dist</code> from the current working
+            directory.
+          </p></dd><dt><span class="term"><code class="literal">--include-path</code></span></dt><dd><p>
+            Prepend PHP's <code class="literal">include_path</code> with given path(s).
+          </p></dd><dt><span class="term"><code class="literal">-d</code></span></dt><dd><p>
+            Sets the value of the given PHP configuration option.
+          </p></dd><dt><span class="term"><code class="literal">--debug</code></span></dt><dd><p>
+            Output debug information such as the name of a test when its
+            execution starts.
+          </p></dd></dl></div></div></div>
+     <div class="row">
+      <div class="col-md-1 pull-left prev-nav"><a accesskey="p" href="writing-tests-for-phpunit.html">Prev</a></div>
+      <div class="col-md-1 pull-right next-nav"><a accesskey="n" href="fixtures.html">Next</a></div>
+     </div>
+<div class="row"><div class="col-md-2"></div><div class="col-md-8"><div class="alert alert-info" style="text-align: center;">Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!</div></div><div class="col-md-2"></div></div>
+    </div>
+   </div>
+   <hr/>
+   <footer>
+    <p><a href="appendixes.copyright.html">Copyright</a> &copy; 2005-2014 <a href="http://sebastian-bergmann.de/">Sebastian Bergmann</a>.</p>
+   </footer>
+  </div>
+  <script src="js/jquery.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/highlight.pack.js"></script>
+  <script type="text/javascript">
+  $(document).ready(function() { $('pre.programlisting').each(function(i, e) {hljs.highlightBlock(e)}); });
+
+  var _paq = _paq || [];
+  _paq.push(["trackPageView"]);
+  _paq.push(["enableLinkTracking"]);
+
+  (function() {
+    var u=(("https:" == document.location.protocol) ? "https" : "http") + "://piwik.sebastian-bergmann.de/";
+    _paq.push(["setTrackerUrl", u+"piwik.php"]);
+    _paq.push(["setSiteId", "2"]);
+    var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
+    g.defer=true; g.async=true; g.src=u+"piwik.js"; s.parentNode.insertBefore(g,s);
+  })();
+  </script>
+ </body>
+</html>
