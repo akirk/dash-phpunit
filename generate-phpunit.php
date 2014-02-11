@@ -1,5 +1,5 @@
 <?php
-if (!false) {
+
 exec("rm -rf PHPUnit.docset/Contents/Resources/");
 exec("mkdir -p PHPUnit.docset/Contents/Resources/");
 exec("wget -rkl1 http://phpunit.de/manual/current/en/index.html");
@@ -24,15 +24,15 @@ file_put_contents(__DIR__ . "/PHPUnit.docset/Contents/Info.plist", <<<ENDE
 </plist>
 ENDE
 );
-}
+
 $dom = new DomDocument;
 @$dom->loadHTMLFile(__DIR__ . "/PHPUnit.docset/Contents/Resources/Documents/index.html");
 
-// unlink(__DIR__ . "/PHPUnit.docset/Contents/Resources/docSet.dsidx");
 $db = new sqlite3(__DIR__ . "/PHPUnit.docset/Contents/Resources/docSet.dsidx");
 $db->query("CREATE TABLE searchIndex(id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT)");
 $db->query("CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path)");
 
+// add links from the table of contents
 $links = $edited = array();
 foreach ($dom->getElementsByTagName("a") as $a) {
 	$href = $a->getAttribute("href");
@@ -64,6 +64,8 @@ foreach ($dom->getElementsByTagName("a") as $a) {
 	$links[$name] = true;
 	$db->query("INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES (\"$name\",\"$class\",\"$href\")");
 }
+
+// now go through some of the files to add pointers to inline documentation
 foreach (array("appendixes.assertions", "appendixes.annotations", "incomplete-and-skipped-tests", "test-doubles", "writing-tests-for-phpunit") as $file) {
 	$search = $replace = array();
 	@$dom->loadHTMLFile(__DIR__ . "/PHPUnit.docset/Contents/Resources/Documents/$file.html");
