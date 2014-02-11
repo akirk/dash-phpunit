@@ -34,6 +34,15 @@ $db = new sqlite3(__DIR__ . "/PHPUnit.docset/Contents/Resources/docSet.dsidx");
 $db->query("CREATE TABLE searchIndex(id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT)");
 $db->query("CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path)");
 
+$html = file_get_contents(__DIR__ . "/PHPUnit.docset/Contents/Resources/Documents/index.html");
+$p = strpos($html, '<nav');
+if ($p !== false) {
+	$q = strpos($html, '</nav');
+	$html = substr($html, 0, $p) . substr($html, $q + 6);
+
+	file_put_contents(__DIR__ . "/PHPUnit.docset/Contents/Resources/Documents/index.html", $html);
+}
+
 // add links from the table of contents
 $links = $edited = array();
 foreach ($dom->getElementsByTagName("a") as $a) {
