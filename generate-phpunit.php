@@ -1,9 +1,13 @@
 <?php
 
+// set your language (en/ja/zh_cn)
+$lang = 'en';
+$ver  = '4.2';
+
 exec("rm -rf PHPUnit.docset/Contents/Resources/");
 exec("mkdir -p PHPUnit.docset/Contents/Resources/");
-exec("wget -rkl1 http://phpunit.de/manual/current/en/index.html");
-exec("mv " . __DIR__ . "/phpunit.de/manual/current/en " . __DIR__ . "/PHPUnit.docset/Contents/Resources/Documents/");
+exec("wget -rkl1 http://phpunit.de/manual/current/{$lang}/index.html");
+exec("mv " . __DIR__ . "/phpunit.de/manual/current/{$lang} " . __DIR__ . "/PHPUnit.docset/Contents/Resources/Documents/");
 exec("rm -r " . __DIR__ . "/phpunit.de/");
 
 file_put_contents(__DIR__ . "/PHPUnit.docset/Contents/Info.plist", <<<ENDE
@@ -12,9 +16,9 @@ file_put_contents(__DIR__ . "/PHPUnit.docset/Contents/Info.plist", <<<ENDE
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string>phpunit</string>
+	<string>phpunit-{$lang}</string>
 	<key>CFBundleName</key>
-	<string>PHPUnit</string>
+	<string>PHPUnit {$ver}-{$lang}</string>
 	<key>DocSetPlatformFamily</key>
 	<string>phpunit</string>
 	<key>isDashDocset</key>
@@ -47,8 +51,9 @@ if ($p !== false) {
 $links = $edited = array();
 foreach ($dom->getElementsByTagName("a") as $a) {
 	$href = $a->getAttribute("href");
-	if (substr($href, 0, 1) == ".") continue;
-	if (substr($href, 0, 5) == "http:") continue;
+	$str  = substr($href, 0, 6);
+	if ($str[0] == '.') continue;
+	if ($str == 'https:' || !strncmp($str, 'http:', 5)) continue;
 
 	$file = preg_replace("/#.*$/", "", $href);
 	if (!isset($edited[$file]) && $file != "index.html") {
